@@ -21,16 +21,16 @@ const App: React.FC = () => {
         setCurrentPage('main');
     }, []);
 
-    const navigateToUpload = useCallback(() => {
+    const navigateToUpload = useCallback((currentContent?: string) => {
         setCurrentPage('upload');
-        setInitialText('');
+        setInitialText(currentContent || '');
         setChatHistory([]);
     }, []);
 
     return (
         <div className="relative flex h-auto min-h-screen w-full flex-col bg-[#111722] dark group/design-root overflow-x-hidden font-lexend">
             {currentPage === 'upload' ? (
-                <UploadPage onDone={handleStartLearningSession} />
+                <UploadPage onDone={handleStartLearningSession} initialText={initialText} />
             ) : (
                 <MainPage 
                     initialChatHistory={chatHistory} 

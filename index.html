@@ -42,6 +42,74 @@
       .animate-breathing {
         animation: breathing 2.5s ease-in-out infinite;
       }
+      .reflection-slide {
+        transition: opacity 300ms ease-in-out, filter 300ms ease-in-out;
+      }
+      .reflection-slide.fading-out {
+          opacity: 0;
+          filter: blur(5px);
+      }
+      .reflection-slide.fading-in {
+          opacity: 1;
+          filter: blur(0px);
+      }
+      .highlighted-text-red {
+        color: #f87171; /* Red text */
+        background-color: rgba(248, 113, 113, 0.2); /* Transparent red background */
+        padding: 2px 4px;
+        border-radius: 4px;
+        text-decoration: underline;
+        text-decoration-color: #f87171; /* Red underline */
+        text-decoration-thickness: 1.5px;
+        text-underline-offset: 4px;
+        font-style: normal; /* Override italic from 'em' */
+        font-weight: 500;
+      }
+      .highlighted-text-yellow {
+        color: #fde047; /* Yellow text */
+        background-color: rgba(253, 224, 71, 0.2); /* Transparent yellow background */
+        padding: 2px 4px;
+        border-radius: 4px;
+        text-decoration: underline;
+        text-decoration-color: #fde047; /* Yellow underline */
+        text-decoration-thickness: 1.5px;
+        text-underline-offset: 4px;
+        font-style: normal; /* Override bold from 'strong' */
+        font-weight: 700; /* Keep it bold */
+      }
+      .mcq-option {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem; /* 12px */
+        padding: 0.5rem; /* 8px */
+        border-radius: 0.5rem; /* 8px */
+        cursor: pointer;
+        transition: background-color 150ms ease-in-out;
+        width: 100%;
+        text-align: left;
+        border: none;
+        background: none;
+        color: inherit;
+        font: inherit;
+      }
+      .mcq-option:hover:not(:disabled) {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+      .mcq-option:disabled {
+        cursor: not-allowed;
+      }
+      .mcq-letter {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.75rem; /* 28px */
+        height: 1.75rem; /* 28px */
+        border-radius: 9999px; /* circle */
+        background-color: #fde047; /* yellow */
+        color: #111722; /* dark text */
+        font-weight: bold;
+        flex-shrink: 0;
+      }
     </style>
   <script type="importmap">
 {

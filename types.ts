@@ -6,6 +6,7 @@ export interface ChatMessage {
   sender: 'user' | 'ai';
   text: string;
   image?: string;
+  suggestions?: string[];
 }
 
 export interface UploadFile {
@@ -28,3 +29,5 @@ export interface OutlineItem {
     title: string;
     slug: string;
 }
+
+export type ReflectionMemory = Record<string, string>;

@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { ChatMessage, OutlineItem } from '../types';
-import { generateImage, connectLive, refineTutorPrompt, getTutorResponse, generateParagraphTitle, rewriteChapterStream, rewriteQnAStream, generateChapterTitle } from '../services/geminiService';
+import { ChatMessage, OutlineItem, ReflectionMemory } from '../types';
+import { generateImage, connectLive, refineTutorPrompt, getTutorResponse, generateParagraphTitle, rewriteChapterStream, rewriteQnAStream, generateChapterTitle, startReflection, getReflectionResponse } from '../services/geminiService';
 import { LogoIcon } from './Icons';
-import { LiveServerMessage, Blob } from '@google/ai/generativelanguage';
+import { LiveServerMessage, Blob } from '@google/genai';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -114,11 +114,10 @@ const Sidebar: React.FC<SidebarProps> = ({ outline, currentIndex, onSelectChapte
 // --- Component: ChatMessageBubble ---
 const ChatMessageBubble: React.FC<{
     message: ChatMessage;
-    scrollContainerRef: React.RefObject<HTMLDivElement>;
-    onCopy: () => void;
-    isCopied: boolean;
     onContextMenu: (event: React.MouseEvent) => void;
-}> = ({ message, scrollContainerRef, onCopy, isCopied, onContextMenu }) => {
+    onSuggestionClick: (suggestion: string) => void;
+    components: any;
+}> = ({ message, onContextMenu, onSuggestionClick, components }) => {
     const isUser = message.sender === 'user';
     
     return (
@@ -128,35 +127,53 @@ const ChatMessageBubble: React.FC<{
                 onContextMenu={onContextMenu}
                 className={`relative group text-base font-normal leading-normal w-full rounded-lg px-4 py-3 text-white ${isUser ? 'bg-[#135bec]' : 'bg-[#232f48]'}`}
             >
-                <div className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                     <button 
-                        onClick={onCopy} 
-                        className="flex items-center gap-1 text-xs text-white bg-black/20 rounded-md px-2 py-1 hover:bg-black/40"
-                     >
-                        {isCopied ? (
-                            <>
-                                <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>check</span>
-                                <span>Copied</span>
-                            </>
-                        ) : (
-                            <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>content_copy</span>
-                        )}
-                    </button>
-                </div>
                 <div className="prose prose-invert prose-sm max-w-none">
-                    <Markdown remarkPlugins={[remarkGfm]}>{message.text}</Markdown>
+                    <Markdown remarkPlugins={[remarkGfm]} components={components}>{message.text}</Markdown>
                     {message.image && <img src={message.image} alt="Generated content" className="mt-2 rounded-lg" />}
                 </div>
+                 {message.suggestions && message.suggestions.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                        {message.suggestions.map((suggestion, index) => (
+                            <button
+                                key={index}
+                                onClick={() => onSuggestionClick(suggestion)}
+                                className="bg-[#34405a] border border-[#4a5a7f] text-white text-sm px-3 py-1 rounded-full hover:bg-[#4a5a7f]"
+                            >
+                                {suggestion}
+                            </button>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );
 };
 
 
+const ReflectionBoard: React.FC<{
+    content: React.ReactNode;
+    animationState: 'visible' | 'fading-out' | 'fading-in';
+}> = ({ content, animationState }) => {
+    const animationClass = animationState === 'fading-out' ? 'fading-out' : 'fading-in';
+    return (
+        <div className={`relative flex w-full flex-col bg-[#111722] p-4 rounded-lg overflow-hidden flex-1 reflection-slide ${animationClass}`}>
+            <div className="bg-[#232f48] rounded-lg p-6 h-full flex flex-col items-start justify-start w-full overflow-y-auto">
+                {typeof content === 'string' ? (
+                     <div className="prose prose-invert max-w-none w-full text-left">
+                        <Markdown remarkPlugins={[remarkGfm]}>{content}</Markdown>
+                    </div>
+                ) : (
+                    content
+                )}
+            </div>
+        </div>
+    );
+};
+
 // --- Component: MainPage ---
 interface MainPageProps {
     initialChatHistory: ChatMessage[];
-    onNavigateToUpload: () => void;
+    onNavigateToUpload: (content: string) => void;
     initialText: string;
 }
 
@@ -210,7 +227,6 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
     const [isTutorSidebarCollapsed, setIsTutorSidebarCollapsed] = useState(false);
     const [leftPanelWidth, setLeftPanelWidth] = useState(256);
     const [rightPanelWidth, setRightPanelWidth] = useState(360);
-    const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
     const [viewMode, setViewMode] = useState<'learning' | 'reflection'>('learning');
     
     // State for live content generation
@@ -232,6 +248,14 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
     const [chatContextMenu, setChatContextMenu] = useState<{ visible: boolean; x: number; y: number; messageIndex: number | null }>({
         visible: false, x: 0, y: 0, messageIndex: null
     });
+
+    // State for Reflection Mode
+    const [reflectionMemory, setReflectionMemory] = useState<ReflectionMemory>({});
+    const [reflectionState, setReflectionState] = useState<'idle' | 'warming_up' | 'active'>('idle');
+    const [currentReflectionContent, setCurrentReflectionContent] = useState<React.ReactNode | null>(null);
+    const [isReflecting, setIsReflecting] = useState(false);
+    const [reflectionAnimationState, setReflectionAnimationState] = useState<'visible' | 'fading-out' | 'fading-in'>('visible');
+
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -292,29 +316,10 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
     }, []);
 
     const handleCopy = useCallback((index: number) => {
-        const currentMessage = messages[index];
-        let textToCopy = '';
-    
-        if (currentMessage.sender === 'user') {
-            const nextMessage = messages[index + 1];
-            if (nextMessage && nextMessage.sender === 'ai') {
-                textToCopy = `You:\n${currentMessage.text}\n\nAI Tutor:\n${nextMessage.text}`;
-            } else {
-                textToCopy = `You:\n${currentMessage.text}`;
-            }
-        } else { // currentMessage.sender === 'ai'
-            const prevMessage = messages[index - 1];
-            if (prevMessage && prevMessage.sender === 'user') {
-                textToCopy = `You:\n${prevMessage.text}\n\nAI Tutor:\n${currentMessage.text}`;
-            } else {
-                textToCopy = `AI Tutor:\n${currentMessage.text}`;
-            }
+        const textToCopy = messages[index]?.text || '';
+        if (textToCopy) {
+            navigator.clipboard.writeText(textToCopy);
         }
-    
-        navigator.clipboard.writeText(textToCopy.trim()).then(() => {
-            setCopiedMessageId(currentMessage.id);
-            setTimeout(() => setCopiedMessageId(null), 2000);
-        });
     }, [messages]);
 
     // Effect to synchronize the internal sourceText state with the initialText prop.
@@ -406,6 +411,130 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
     const currentOutlineIndex = sectionToOutlineIndex(currentSectionIndex);
 
 
+    const handleSendMessage = useCallback(async (text: string) => {
+        if (!text.trim() || isLoading || isRefining) return;
+
+        const newUserMessage: ChatMessage = { id: crypto.randomUUID(), sender: 'user', text };
+        setMessages(prev => [...prev, newUserMessage]);
+        setUserInput('');
+        if (textareaRef.current) textareaRef.current.style.height = 'auto';
+        setIsLoading(true);
+
+        try {
+            if (text.trim().toLowerCase().startsWith("/generate")) {
+                const prompt = text.replace("/generate", "").trim();
+                const imageUrl = await generateImage(prompt);
+                setMessages(prev => [...prev, {
+                    id: crypto.randomUUID(), sender: 'ai', text: `Here is the image you requested for: "${prompt}"`, image: imageUrl || undefined,
+                }]);
+            } else {
+                const currentChapterContent = sections[currentSectionIndex]?.content || "";
+                const responseText = await getTutorResponse(text, currentChapterContent, [...messages, newUserMessage], isSearchEnabled);
+                setMessages(prev => [...prev, { id: crypto.randomUUID(), sender: 'ai', text: responseText }]);
+            }
+        } catch (error) {
+            console.error(error);
+            setMessages(prev => [...prev, { id: crypto.randomUUID(), sender: 'ai', text: 'Sorry, something went wrong.' }]);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [isLoading, messages, isRefining, sections, currentSectionIndex, isSearchEnabled]);
+
+     const handleReflectionMessage = useCallback(async (text: string) => {
+        if (!text.trim() || isReflecting) return;
+    
+        const newUserMessage: ChatMessage = { id: crypto.randomUUID(), sender: 'user', text };
+        setMessages(prev => [...prev, newUserMessage]);
+        setUserInput('');
+        if (textareaRef.current) textareaRef.current.style.height = 'auto';
+        setIsReflecting(true);
+        setReflectionAnimationState('fading-out');
+
+        setTimeout(async () => {
+            setCurrentReflectionContent(
+                 <div className="flex items-center gap-2 text-[#92a4c9]">
+                    <div className="w-4 h-4 border-2 border-dashed rounded-full animate-spin border-white"></div>
+                    <span>Reflecting on your answer...</span>
+                </div>
+            );
+            setReflectionAnimationState('fading-in');
+
+            const currentSection = sections[currentSectionIndex];
+            if (!currentSection) {
+                setIsReflecting(false);
+                return;
+            }
+    
+            const memoryForChapter = reflectionMemory[currentSection.id] || '';
+    
+            try {
+                const { updatedMemory, responseToUser, nextQuestion, imagePrompt, choices } = await getReflectionResponse(
+                    currentSection.content,
+                    memoryForChapter,
+                    [...messages, newUserMessage],
+                    text
+                );
+    
+                setReflectionMemory(prev => ({ ...prev, [currentSection.id]: updatedMemory }));
+                setMessages(prev => [...prev, { 
+                    id: crypto.randomUUID(), 
+                    sender: 'ai', 
+                    text: responseToUser,
+                    suggestions: choices || undefined,
+                }]);
+                
+                const processedQuestion = nextQuestion;
+
+                if (imagePrompt) {
+                    setCurrentReflectionContent(
+                        <div className="text-left w-full">
+                            <div className="prose prose-invert max-w-none">
+                                <Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>{processedQuestion}</Markdown>
+                            </div>
+                            <div className="flex items-center justify-center gap-2 mt-4 text-[#92a4c9]">
+                                <div className="w-4 h-4 border-2 border-dashed rounded-full animate-spin border-white"></div>
+                                <span>Generating visual aid...</span>
+                            </div>
+                        </div>
+                    );
+                    const imageUrl = await generateImage(imagePrompt);
+                    setCurrentReflectionContent(
+                         <div className="text-left w-full">
+                            <div className="prose prose-invert max-w-none">
+                                 <Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>{processedQuestion}</Markdown>
+                            </div>
+                            {imageUrl && <img src={imageUrl} alt={imagePrompt} className="mt-4 rounded-lg mx-auto max-h-96" />}
+                        </div>
+                    );
+                } else {
+                     setCurrentReflectionContent(
+                        <div className="prose prose-invert max-w-none w-full text-left">
+                           <Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>{processedQuestion}</Markdown>
+                        </div>
+                     );
+                }
+    
+                if (reflectionState === 'warming_up') {
+                    setReflectionState('active');
+                }
+    
+            } catch (error) {
+                console.error("Error during reflection:", error);
+                 setMessages(prev => [...prev, { id: crypto.randomUUID(), sender: 'ai', text: "Sorry, I had a moment of confusion. Let's try that again." }]);
+            } finally {
+                setIsReflecting(false);
+            }
+        }, 300);
+    }, [isReflecting, messages, sections, currentSectionIndex, reflectionMemory, reflectionState]);
+    
+    const combinedSendMessage = useCallback((text: string) => {
+        if (viewMode === 'reflection') {
+            handleReflectionMessage(text);
+        } else {
+            handleSendMessage(text);
+        }
+    }, [viewMode, handleSendMessage, handleReflectionMessage]);
+
     const markdownComponents = {
         a: ({ node, ...props }: any) => {
             if (props.href && props.href.startsWith('#')) {
@@ -436,6 +565,39 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
         h4: ({ node, ...props }: any) => <h4 id={generateSlugFromNode(props.children)} {...props} />,
         h5: ({ node, ...props }: any) => <h5 id={generateSlugFromNode(props.children)} {...props} />,
         h6: ({ node, ...props }: any) => <h6 id={generateSlugFromNode(props.children)} {...props} />,
+        strong: ({node, ...props}: any) => <span className="highlighted-text-yellow" {...props} />,
+        em: ({node, ...props}: any) => <span className="highlighted-text-red" {...props} />,
+        li: ({ node, ...props }: any) => {
+            const getNodeText = (n: any): string => {
+                return n.children.map((child: any) => {
+                    if (child.type === 'text') return child.value;
+                    if (child.children) return getNodeText(child);
+                    return '';
+                }).join('');
+            };
+            const textContent = getNodeText(node).trim();
+            const mcqMatch = textContent.match(/^([A-Z])\)\s*(.*)/);
+            
+            const lastAiMessage = [...messages].reverse().find(m => m.sender === 'ai');
+
+            if (mcqMatch && lastAiMessage?.suggestions?.some(s => s.trim().startsWith(mcqMatch[0].trim()))) {
+                const letter = mcqMatch[1];
+                const optionText = mcqMatch[2];
+                return (
+                    <li className="list-none my-2">
+                        <button
+                            onClick={() => combinedSendMessage(textContent)}
+                            className="mcq-option"
+                            disabled={isLoading || isReflecting}
+                        >
+                            <span className="mcq-letter">{letter}</span>
+                            <span>{optionText}</span>
+                        </button>
+                    </li>
+                );
+            }
+            return <li {...props} />;
+        },
     };
 
     useEffect(() => {
@@ -467,36 +629,7 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
         document.addEventListener('click', handleClickOutside);
         return () => document.removeEventListener('click', handleClickOutside);
     }, [contextMenu.visible, chatContextMenu.visible]);
-
-    const handleSendMessage = useCallback(async (text: string) => {
-        if (!text.trim() || isLoading || isRefining) return;
-
-        const newUserMessage: ChatMessage = { id: crypto.randomUUID(), sender: 'user', text };
-        setMessages(prev => [...prev, newUserMessage]);
-        setUserInput('');
-        if (textareaRef.current) textareaRef.current.style.height = 'auto';
-        setIsLoading(true);
-
-        try {
-            if (text.trim().toLowerCase().startsWith("/generate")) {
-                const prompt = text.replace("/generate", "").trim();
-                const imageUrl = await generateImage(prompt);
-                setMessages(prev => [...prev, {
-                    id: crypto.randomUUID(), sender: 'ai', text: `Here is the image you requested for: "${prompt}"`, image: imageUrl || undefined,
-                }]);
-            } else {
-                const currentChapterContent = sections[currentSectionIndex]?.content || "";
-                const responseText = await getTutorResponse(text, currentChapterContent, [...messages, newUserMessage], isSearchEnabled);
-                setMessages(prev => [...prev, { id: crypto.randomUUID(), sender: 'ai', text: responseText }]);
-            }
-        } catch (error) {
-            console.error(error);
-            setMessages(prev => [...prev, { id: crypto.randomUUID(), sender: 'ai', text: 'Sorry, something went wrong.' }]);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [isLoading, messages, isRefining, sections, currentSectionIndex, isSearchEnabled]);
-
+    
     const handleRefinePrompt = useCallback(async () => {
         if (!userInput.trim() || isLoading || isRefining) return;
         setIsRefining(true);
@@ -738,8 +871,13 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
     }, [chatContextMenu.messageIndex, messages, sections, currentSectionIndex]);
     
     const handleClearChatHistory = useCallback(() => {
-        setMessages(initialChatHistory);
-    }, [initialChatHistory]);
+        if (viewMode === 'reflection') {
+            // Re-trigger the warm-up for the current chapter
+            initiateReflection(currentSectionIndex);
+        } else {
+            setMessages(initialChatHistory);
+        }
+    }, [initialChatHistory, viewMode, currentSectionIndex]);
     
     const handleAddNewChapter = useCallback(() => {
         let insertIndex = sections.findIndex(s => s.type === 'conclusion' || s.type === 'sources');
@@ -774,6 +912,11 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
         setEditingContent(newChapterContent);
     
     }, [sections]);
+
+    const handleNavigateBackToUpload = () => {
+        const fullContent = sections.map(s => s.content).join('\n\n');
+        onNavigateToUpload(fullContent);
+    };
 
     // --- Live API Handlers ---
     const stopRecording = useCallback(() => {
@@ -902,9 +1045,77 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            handleSendMessage(userInput);
+            combinedSendMessage(userInput);
         }
     };
+
+    // --- Reflection Mode Logic ---
+    const initiateReflection = useCallback(async (sectionIndex: number) => {
+        const section = sections[sectionIndex];
+        if (!section) return;
+
+        setReflectionState('warming_up');
+        setMessages([]);
+        setIsReflecting(true);
+        setReflectionAnimationState('fading-out');
+
+        setTimeout(async () => {
+            setCurrentReflectionContent(
+                <div className="flex items-center gap-2 text-[#92a4c9]">
+                    <div className="w-4 h-4 border-2 border-dashed rounded-full animate-spin border-white"></div>
+                    <span>Preparing reflection...</span>
+                </div>
+            );
+            setReflectionAnimationState('fading-in');
+            try {
+                const { greeting, suggestions } = await startReflection(section.title, section.content);
+                setMessages([{
+                    id: crypto.randomUUID(),
+                    sender: 'ai',
+                    text: greeting,
+                    suggestions: suggestions
+                }]);
+                setCurrentReflectionContent(
+                    <div className="text-left w-full">
+                        <h2 className="text-xl font-bold mb-4 text-white">Ready to Reflect?</h2>
+                        <p className="mb-6 text-slate-300">Choose a topic below or in the chat to get started!</p>
+                        <div className="flex flex-col gap-3">
+                            {suggestions.map((suggestion, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => handleReflectionMessage(suggestion)}
+                                    className="mcq-option"
+                                    disabled={isReflecting}
+                                >
+                                    <span className="mcq-letter">{index + 1}</span>
+                                    <span className="text-white">{suggestion}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                );
+            } catch (error) {
+                console.error("Failed to start reflection session:", error);
+                setMessages([{ id: crypto.randomUUID(), sender: 'ai', text: "I'm having a bit of trouble starting our reflection. Please try again in a moment." }]);
+            } finally {
+                setIsReflecting(false);
+            }
+        }, 300);
+    }, [sections, isReflecting]);
+
+    useEffect(() => {
+        if (viewMode === 'reflection' && sections.length > 0) {
+            initiateReflection(currentSectionIndex);
+        } else {
+            // Cleanup when switching away from reflection mode
+            setReflectionState('idle');
+            setCurrentReflectionContent(null);
+            if (messages.length === 0 || reflectionState !== 'idle') {
+                 setMessages(initialChatHistory);
+            }
+        }
+    }, [viewMode, currentSectionIndex, sections, initialChatHistory]);
+
 
     const isChatInputActive = isInputActive || userInput.length > 0;
     const currentSectionContent = sections[currentSectionIndex]?.content;
@@ -926,7 +1137,7 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
                             <button onClick={() => setViewMode('learning')} className={`flex-1 rounded-full px-4 py-2 text-sm font-bold leading-normal text-white transition-colors ${viewMode === 'learning' ? 'bg-[#34405a]' : 'hover:bg-[#232f48]'}`}>Learning Mode</button>
                             <button onClick={() => setViewMode('reflection')} className={`flex-1 rounded-full px-4 py-2 text-sm font-bold leading-normal text-white transition-colors ${viewMode === 'reflection' ? 'bg-[#34405a]' : 'hover:bg-[#232f48]'}`}>Reflection Mode</button>
                         </div>
-                        <button onClick={onNavigateToUpload} className="rounded-full bg-[#232f48] px-4 py-2 text-sm font-bold leading-normal text-white hover:bg-[#34405a]">Upload New Material</button>
+                        <button onClick={handleNavigateBackToUpload} className="rounded-full bg-[#232f48] px-4 py-2 text-sm font-bold leading-normal text-white hover:bg-[#34405a]">Upload New Material</button>
                     </div>
                     <div className="flex items-center gap-9">
                         <a className="text-white text-sm font-medium leading-normal" href="#">Help</a>
@@ -969,66 +1180,81 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
                         )}
                     </div>
                 )}
-                
                  <main 
-                    className="flex flex-1 transition-all duration-300"
-                     style={{ 
-                        flexBasis: viewMode === 'reflection' ? '60%' : 'auto'
-                    }}
+                    className={`flex flex-1 transition-all duration-300 ${viewMode === 'reflection' ? 'flex-row' : ''}`}
                 >
-                    <div className="flex flex-col flex-1 py-5 px-6">
-                        <div className="flex items-center justify-between px-4 pb-3 pt-5 gap-4">
-                            <h1 className="text-white text-2xl font-bold leading-tight tracking-[-0.015em]">{reportTitle}</h1>
-                            {lectureOutline.length > 0 && (
-                                <div className="flex items-center gap-3 text-white shrink-0">
-                                    <button onClick={handlePreviousChapter} disabled={currentOutlineIndex === 0} className="flex size-10 items-center justify-center rounded-lg bg-[#232f48] hover:bg-[#34405a] disabled:opacity-50 disabled:cursor-not-allowed">
-                                        <span className="material-symbols-outlined">chevron_left</span>
-                                    </button>
-                                    <div className="flex h-10 items-center justify-center rounded-lg bg-[#232f48] text-sm font-medium px-4">
-                                        <span className="text-center whitespace-nowrap">{currentOutlineIndex + 1} / {lectureOutline.length}</span>
-                                    </div>
-                                    <button onClick={handleNextChapter} disabled={currentOutlineIndex === lectureOutline.length - 1} className="flex size-10 items-center justify-center rounded-lg bg-[#232f48] hover:bg-[#34405a] disabled:opacity-50 disabled:cursor-not-allowed">
-                                        <span className="material-symbols-outlined">chevron_right</span>
-                                    </button>
-                                </div>
-                            )}
+                    {viewMode === 'reflection' && (
+                        <div className="flex w-2/5 flex-col py-5 px-6">
+                            <Sidebar 
+                                outline={lectureOutline}
+                                currentIndex={currentOutlineIndex}
+                                onSelectChapter={handleSelectChapter}
+                                onAddNewChapter={handleAddNewChapter}
+                                isCollapsed={false}
+                                setIsCollapsed={() => {}}
+                                isEditing={false}
+                            />
                         </div>
-
-                        <div className="relative flex w-full flex-col bg-[#111722] p-4 rounded-lg overflow-hidden">
-                            <div 
-                                ref={contentContainerRef}
-                                className="bg-[#232f48] rounded-lg p-4"
-                                onContextMenu={(e) => handleChapterContextMenu(e, currentSectionIndex)}
-                            >
-                                {editingSectionIndex === currentSectionIndex ? (
-                                     <div className="flex flex-col gap-4">
-                                        <textarea
-                                            ref={editorTextareaRef}
-                                            value={editingContent}
-                                            onChange={(e) => setEditingContent(e.target.value)}
-                                            className="form-textarea w-full min-w-0 flex-1 resize-y rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#324467] bg-[#192233] focus:border-[#135bec] p-3 text-base font-normal leading-normal font-mono"
-                                            rows={15}
-                                        />
-                                        <div className="flex justify-end gap-3">
-                                            <button onClick={handleCancelEdit} className="rounded-full bg-transparent border border-solid border-[#34405a] px-4 py-2 text-sm font-bold leading-normal text-white hover:bg-[#232f48]">Cancel</button>
-                                            <button onClick={handleSaveEdit} className="rounded-full bg-[#135bec] px-4 py-2 text-sm font-bold leading-normal text-white hover:bg-[#0d4bb8]">Save Changes</button>
+                    )}
+                    <div className={`flex flex-col flex-1 py-5 px-6 ${viewMode === 'reflection' ? 'w-3/5' : ''}`}>
+                         {viewMode === 'learning' && (
+                            <>
+                                <div className="flex items-center justify-between px-4 pb-3 pt-5 gap-4">
+                                    <h1 className="text-white text-2xl font-bold leading-tight tracking-[-0.015em]">{reportTitle}</h1>
+                                    {lectureOutline.length > 0 && (
+                                        <div className="flex items-center gap-3 text-white shrink-0">
+                                            <button onClick={handlePreviousChapter} disabled={currentOutlineIndex === 0} className="flex size-10 items-center justify-center rounded-lg bg-[#232f48] hover:bg-[#34405a] disabled:opacity-50 disabled:cursor-not-allowed">
+                                                <span className="material-symbols-outlined">chevron_left</span>
+                                            </button>
+                                            <div className="flex h-10 items-center justify-center rounded-lg bg-[#232f48] text-sm font-medium px-4">
+                                                <span className="text-center whitespace-nowrap">{currentOutlineIndex + 1} / {lectureOutline.length}</span>
+                                            </div>
+                                            <button onClick={handleNextChapter} disabled={currentOutlineIndex === lectureOutline.length - 1} className="flex size-10 items-center justify-center rounded-lg bg-[#232f48] hover:bg-[#34405a] disabled:opacity-50 disabled:cursor-not-allowed">
+                                                <span className="material-symbols-outlined">chevron_right</span>
+                                            </button>
                                         </div>
-                                    </div>
-                                ) : (
-                                    <div className="prose prose-invert max-w-none">
-                                        <Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-                                            {currentDisplayContent || (isGenerating ? "Generating..." : "Select a chapter.")}
-                                        </Markdown>
-                                        {isGenerating && !currentDisplayContent && (
-                                            <div className="flex items-center gap-2 mt-4 text-[#92a4c9]">
-                                                <div className="w-4 h-4 border-2 border-dashed rounded-full animate-spin border-white"></div>
-                                                <span>Generating...</span>
+                                    )}
+                                </div>
+                                <div className="relative flex w-full flex-col bg-[#111722] p-4 rounded-lg overflow-hidden">
+                                    <div 
+                                        ref={contentContainerRef}
+                                        className="bg-[#232f48] rounded-lg p-4"
+                                        onContextMenu={(e) => handleChapterContextMenu(e, currentSectionIndex)}
+                                    >
+                                        {editingSectionIndex === currentSectionIndex ? (
+                                             <div className="flex flex-col gap-4">
+                                                <textarea
+                                                    ref={editorTextareaRef}
+                                                    value={editingContent}
+                                                    onChange={(e) => setEditingContent(e.target.value)}
+                                                    className="form-textarea w-full min-w-0 flex-1 resize-y rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#324467] bg-[#192233] focus:border-[#135bec] p-3 text-base font-normal leading-normal font-mono"
+                                                    rows={15}
+                                                />
+                                                <div className="flex justify-end gap-3">
+                                                    <button onClick={handleCancelEdit} className="rounded-full bg-transparent border border-solid border-[#34405a] px-4 py-2 text-sm font-bold leading-normal text-white hover:bg-[#232f48]">Cancel</button>
+                                                    <button onClick={handleSaveEdit} className="rounded-full bg-[#135bec] px-4 py-2 text-sm font-bold leading-normal text-white hover:bg-[#0d4bb8]">Save Changes</button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="prose prose-invert max-w-none">
+                                                <Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                                                    {currentDisplayContent || (isGenerating ? "Generating..." : "Select a chapter.")}
+                                                </Markdown>
+                                                {isGenerating && !currentDisplayContent && (
+                                                    <div className="flex items-center gap-2 mt-4 text-[#92a4c9]">
+                                                        <div className="w-4 h-4 border-2 border-dashed rounded-full animate-spin border-white"></div>
+                                                        <span>Generating...</span>
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                     </div>
-                                )}
-                            </div>
-                        </div>
+                                </div>
+                            </>
+                         )}
+                         {viewMode === 'reflection' && (
+                            <ReflectionBoard content={currentReflectionContent} animationState={reflectionAnimationState} />
+                         )}
                     </div>
                 </main>
                 
@@ -1036,11 +1262,10 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
                     ref={rightPanelRef}
                     className="relative transition-all duration-300 flex-shrink-0"
                     style={{
-                        width: isTutorSidebarCollapsed ? 0 : (viewMode === 'reflection' ? '40%' : rightPanelWidth),
-                        flexBasis: viewMode === 'reflection' ? '40%' : 'auto'
+                        width: isTutorSidebarCollapsed ? 0 : rightPanelWidth,
                     }}
                 >
-                    <aside className={`relative sticky top-[65px] flex flex-col h-[calc(100vh-65px)] w-full ${(viewMode === 'learning' && !isTutorSidebarCollapsed) && 'border-l border-solid border-l-[#232f48]'}`}>
+                    <aside className={`relative sticky top-[65px] flex flex-col h-[calc(100vh-65px)] w-full ${!isTutorSidebarCollapsed && 'border-l border-solid border-l-[#232f48]'}`}>
                         <button 
                             onClick={() => setIsTutorSidebarCollapsed(!isTutorSidebarCollapsed)} 
                             className={`absolute top-1/2 -translate-y-1/2 flex h-32 w-6 items-center justify-center rounded-l-lg bg-[#34405a] text-white shadow-lg z-30 ${isTutorSidebarCollapsed ? 'right-0' : '-left-[12px]'}`}
@@ -1068,13 +1293,12 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
                                         <ChatMessageBubble 
                                             key={msg.id} 
                                             message={msg} 
-                                            scrollContainerRef={chatContainerRef} 
-                                            onCopy={() => handleCopy(index)}
                                             onContextMenu={(e) => handleChatContextMenu(e, index)}
-                                            isCopied={copiedMessageId === msg.id}
+                                            onSuggestionClick={combinedSendMessage}
+                                            components={markdownComponents}
                                         />
                                     ))}
-                                    {isLoading && (
+                                    {(isLoading || isReflecting) && (
                                         <div className="flex w-full flex-col gap-1">
                                             <p className="text-[#92a4c9] text-[13px] font-normal leading-normal">AI Tutor</p>
                                             <div className="text-base font-normal leading-normal w-full rounded-lg px-4 py-3 text-white bg-[#232f48]">
@@ -1087,24 +1311,8 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
                         )}
 
                     </aside>
-                     {viewMode === 'learning' && !isTutorSidebarCollapsed && (
+                     {!isTutorSidebarCollapsed && (
                         <>
-                            <div
-                                onMouseDown={handleMouseDown('right')}
-                                className="absolute top-0 -left-1 h-[calc(50%-4rem)] w-2 cursor-col-resize z-20 group"
-                            >
-                                <div className="w-[1px] h-full bg-transparent group-hover:bg-[#135bec] transition-colors" />
-                            </div>
-                             <div
-                                onMouseDown={handleMouseDown('right')}
-                                className="absolute bottom-0 -left-1 h-[calc(50%-4rem)] w-2 cursor-col-resize z-20 group"
-                            >
-                                <div className="w-[1px] h-full bg-transparent group-hover:bg-[#135bec] transition-colors" />
-                            </div>
-                        </>
-                    )}
-                    {viewMode === 'reflection' && !isTutorSidebarCollapsed && (
-                         <>
                             <div
                                 onMouseDown={handleMouseDown('right')}
                                 className="absolute top-0 -left-1 h-[calc(50%-4rem)] w-2 cursor-col-resize z-20 group"
@@ -1167,24 +1375,28 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
                     >
                         Copy
                     </button>
-                    <button
-                        onClick={handleAppendParagraph}
-                        className="block w-full text-left px-4 py-2 text-sm text-white hover:bg-[#232f48]"
-                    >
-                        Append Paragraph
-                    </button>
-                    <button
-                        onClick={handleAppendQA}
-                        className="block w-full text-left px-4 py-2 text-sm text-white hover:bg-[#232f48]"
-                    >
-                        Append Q&A
-                    </button>
-                    <button
-                        onClick={handleCreateChapter}
-                        className="block w-full text-left px-4 py-2 text-sm text-white hover:bg-[#232f48]"
-                    >
-                        Create Chapter
-                    </button>
+                    {viewMode === 'learning' && (
+                        <>
+                            <button
+                                onClick={handleAppendParagraph}
+                                className="block w-full text-left px-4 py-2 text-sm text-white hover:bg-[#232f48]"
+                            >
+                                Append Paragraph
+                            </button>
+                            <button
+                                onClick={handleAppendQA}
+                                className="block w-full text-left px-4 py-2 text-sm text-white hover:bg-[#232f48]"
+                            >
+                                Append Q&A
+                            </button>
+                            <button
+                                onClick={handleCreateChapter}
+                                className="block w-full text-left px-4 py-2 text-sm text-white hover:bg-[#232f48]"
+                            >
+                                Create Chapter
+                            </button>
+                        </>
+                    )}
                 </div>
             )}
 
@@ -1217,13 +1429,13 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
                             </button>
                             <button 
                                 onClick={handleRefinePrompt} 
-                                disabled={!userInput.trim() || isLoading || isRefining} 
+                                disabled={!userInput.trim() || isLoading || isRefining || viewMode === 'reflection'}
                                 className="flex items-center justify-center size-10 rounded-full border-[2.5px] border-solid border-[#34405a] text-white hover:bg-[#34405a] mr-2 bg-[#232f48] disabled:opacity-50 disabled:cursor-not-allowed"
                                 aria-label="Refine prompt"
                             >
                                 <span className="material-symbols-outlined text-2xl">{isRefining ? 'pending' : 'auto_fix_high'}</span>
                             </button>
-                            <button onClick={() => handleSendMessage(userInput)} disabled={isLoading || isRefining || !userInput.trim()} className="min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-8 px-4 bg-[#232f48] border-[2.5px] border-solid border-[#34405a] text-white text-sm font-medium leading-normal hover:bg-[#34405a] disabled:opacity-50 disabled:cursor-not-allowed">
+                            <button onClick={() => combinedSendMessage(userInput)} disabled={isLoading || isRefining || !userInput.trim() || isReflecting} className="min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-8 px-4 bg-[#232f48] border-[2.5px] border-solid border-[#34405a] text-white text-sm font-medium leading-normal hover:bg-[#34405a] disabled:opacity-50 disabled:cursor-not-allowed">
                                 <span className="truncate">Submit</span>
                             </button>
                         </div>

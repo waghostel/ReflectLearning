@@ -1,226 +1,63 @@
-import { GoogleGenAI, GenerateContentResponse, Chat, LiveServerMessage, Modality, Type } from "@google/genai";
+import { GoogleGenAI, Content, Type, Modality, LiveServerMessage, Blob } from "@google/genai";
 import { ChatMessage } from '../types';
 
-let ai: GoogleGenAI;
-const getAi = () => {
-    if (!ai) {
-        if (!process.env.API_KEY) {
-            throw new Error("API_KEY environment variable is not set");
-        }
-        ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    }
-    return ai;
-}
+// Initialize the Google Gemini AI client
+// FIX: Add comment above each fix.
+// Initializes the GoogleGenAI client instance.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
 
-const fileToGenerativePart = async (file: File) => {
-    const base64EncodedDataPromise = new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
-        reader.readAsDataURL(file);
-    });
-    return {
-        inlineData: { data: await base64EncodedDataPromise, mimeType: file.type },
+/**
+ * Analyzes an image with a text prompt.
+ */
+export const analyzeImage = async (base64Data: string, mimeType: string, prompt: string): Promise<string> => {
+    const imagePart = {
+        inlineData: {
+            data: base64Data,
+            mimeType: mimeType,
+        },
     };
-};
+    const textPart = {
+        text: prompt
+    };
 
-export const createChat = (history?: ChatMessage[]) => {
-    const formattedHistory = history?.map(message => ({
-        role: message.sender === 'user' ? 'user' : 'model',
-        parts: [{ text: message.text }]
-    }));
-
-    return getAi().chats.create({
-        model: 'gemini-flash-lite-latest',
-        history: formattedHistory,
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: { parts: [imagePart, textPart] },
     });
+    
+    return response.text;
 };
 
-export const sendMessageToChat = async (chat: Chat, message: string): Promise<GenerateContentResponse> => {
-    return await chat.sendMessage({ message });
-};
+/**
+ * Searches for learning materials on a topic, streaming the results.
+ */
+export async function* searchLearningMaterialsStream(query: string, useSearch: boolean): AsyncGenerator<string> {
+    const response = await ai.models.generateContentStream({
+        model: 'gemini-2.5-flash',
+        contents: `Provide a detailed explanation of "${query}". Break it down into sections with markdown headings. Use bold markdown (**text**) for keywords or knowledge points, and italic markdown (*text*) for words that require emphasis in a sentence.`,
+        config: useSearch ? { tools: [{ googleSearch: {} }] } : {},
+    });
 
-export const analyzeImage = async (imageData: string, mimeType: string, prompt: string) => {
-    try {
-        const imagePart = {
-            inlineData: {
-                data: imageData,
-                mimeType: mimeType,
-            },
-        };
-        const textPart = { text: prompt };
-        const response = await getAi().models.generateContent({
-            model: 'gemini-flash-lite-latest',
-            contents: { parts: [imagePart, textPart] },
-        });
-        return response.text;
-    } catch (error) {
-        console.error("Error analyzing image:", error);
-        return "Sorry, I couldn't analyze the image.";
-    }
-};
-
-const searchPromptTemplate = (query: string, useSearch: boolean) => `You are a professional research assistant. Your task is to create a comprehensive and well-structured report in Markdown format based on the user's input.
-
-The user's input is:
-"""
-${query}
-"""
-
-Your instructions are:
-1.  Analyze the input. It may be a simple search query, or a mix of content, instructions, and URLs.
-2.  If the input contains URLs, use them as primary sources. Also, use any accompanying text as context or additional topics to search for to create a comprehensive report.
-3.  If the input does NOT contain URLs, treat the entire text as a search query to find information.
-4.  ${useSearch ? "Perform a comprehensive web search based on your analysis." : "Use only your internal knowledge to generate the report. Do not perform any web search or list any sources."}
-5.  Synthesize all the gathered information into a single, coherent report using the specified Markdown structure below.
-
-# [Report Title]
-Provide a clear and descriptive title summarizing the topic.
-
----
-
-## Table of Contents
-- [Introduction](#introduction)
-- [Chapter 1: First Main Topic](#chapter-1)
-- [Chapter 2: Second Main Topic](#chapter-2)
-- [Conclusion](#conclusion)${useSearch ? `\n- [Sources](#sources)` : ''}
-
-(Each TOC item MUST link to a simple anchor. Use '#introduction', '#conclusion',${useSearch ? ` '#sources', and` : ' and'} for chapters, use the format '#chapter-1', '#chapter-2', and so on. The corresponding headings in the report body will be, for example, '## Introduction', '## Chapter 1: First Main Topic', etc.)
-
----
-
-## Introduction
-Provide a concise introduction explaining:
-- The background of the topic
-- Why it matters
-- What this report will cover
-
----
-
-## Chapter 1: [Main Theme or Finding]
-### Subchapter Title
-Describe details under this chapter. Use clear structure and explain in your own words.
-
-You may include:
-- **Key points** in bullet form
-- Inline code snippets: \`example_code_here\`
-- Important terms in **bold**
-- Quotes or facts in *italic*
-
-### Subchapter Title
-(Continue for other subtopics or aspects)
-
----
-
-## Chapter 2: [Another Major Section]
-### Subchapter Title
-(Continue structure as above)
-
----
-
-## Summary / Conclusion
-Summarize key insights, implications, and recommendations.
-${useSearch ? `
----
-
-## Sources
-List all the web sources used to generate this report in a bulleted list of Markdown links.` : ''}
-
----
-
-### Formatting Rules
-- Use \`#\`, \`##\`, \`###\` for H1, H2, and H3 headings.
-- Use **bold** for emphasis and *italic* for soft emphasis.
-- Wrap code, terms, or special data in backticks \`like_this\`.
-- Add bullet points \`-\` for lists when suitable.
-- Keep paragraphs short and readable.
-`;
-
-export const searchLearningMaterials = async (query: string, useSearch: boolean): Promise<string> => {
-    try {
-        const prompt = searchPromptTemplate(query, useSearch);
-        
-        const config: any = {
-           systemInstruction: "You are a professional research assistant.",
-        };
-
-        if (useSearch) {
-            config.tools = [{ googleSearch: {} }];
-        }
-
-        const response = await getAi().models.generateContent({
-            model: 'gemini-flash-lite-latest',
-            contents: prompt,
-            config
-        });
-
-        return response.text;
-
-    } catch (error) {
-        console.error("Error searching for materials:", error);
-        return "Sorry, I couldn't find any materials.";
-    }
-};
-
-export async function* searchLearningMaterialsStream(query: string, useSearch: boolean): AsyncGenerator<string, void, unknown> {
-    const prompt = searchPromptTemplate(query, useSearch);
-    try {
-        const config: any = {
-           systemInstruction: "You are a professional research assistant.",
-        };
-
-        if (useSearch) {
-            config.tools = [{ googleSearch: {} }];
-        }
-
-        const response = await getAi().models.generateContentStream({
-            model: 'gemini-flash-lite-latest',
-            contents: prompt,
-            config: config
-        });
-
-        for await (const chunk of response) {
-            yield chunk.text;
-        }
-
-    } catch (error) {
-        console.error("Error streaming search for materials:", error);
-        yield "Sorry, I couldn't find any materials at this moment.";
+    for await (const chunk of response) {
+        yield chunk.text;
     }
 }
 
-export const generateImage = async (prompt: string): Promise<string | null> => {
-    try {
-        const response = await getAi().models.generateImages({
-            model: 'imagen-4.0-generate-001',
-            prompt: prompt,
-            config: {
-                numberOfImages: 1,
-                outputMimeType: 'image/jpeg',
-                aspectRatio: '1:1',
-            },
-        });
-
-        if (response.generatedImages && response.generatedImages.length > 0) {
-            const base64ImageBytes: string = response.generatedImages[0].image.imageBytes;
-            return `data:image/jpeg;base64,${base64ImageBytes}`;
-        }
-        return null;
-    } catch (error) {
-        console.error("Error generating image:", error);
-        return null;
-    }
-};
-
+/**
+ * Connects to the Live API for real-time voice interaction.
+ */
 export const connectLive = (callbacks: {
     onopen: () => void;
-    onmessage: (message: LiveServerMessage) => Promise<void>;
+    onmessage: (message: LiveServerMessage) => void;
     onerror: (e: ErrorEvent) => void;
-    onclose: (e: CloseEvent) => void;
-// Fix: The 'LiveSession' type is not exported by the SDK. The return type should be inferred.
+    onclose: () => void;
 }) => {
-    return getAi().live.connect({
+    return ai.live.connect({
         model: 'gemini-2.5-flash-native-audio-preview-09-2025',
-        callbacks,
+        callbacks: {
+            ...callbacks,
+            onclose: (e: CloseEvent) => callbacks.onclose(),
+        },
         config: {
             responseModalities: [Modality.AUDIO],
             speechConfig: {
@@ -228,500 +65,463 @@ export const connectLive = (callbacks: {
             },
             inputAudioTranscription: {},
             outputAudioTranscription: {},
-            systemInstruction: 'You are a friendly and helpful AI Tutor named Reflect. Keep your answers concise and encouraging.',
         },
     });
 };
 
-export const refineUserPrompt = async (prompt: string): Promise<string> => {
+/**
+ * Refines a block of text into a well-structured report, streaming the result.
+ */
+export async function* refineTextStream(originalText: string, useSearch: boolean): AsyncGenerator<string> {
+    const prompt = `You are an expert editor. Your task is to refine the following text to improve its clarity, coherence, and overall quality. If there are multiple separate reports (each with their own '# H1'), merge them into a single, cohesive document. Generate one new, overarching '# H1' title that accurately summarizes all the combined topics. Convert each original report into a '## Chapter', preserving its internal structure. Ensure the final output is a single, well-structured report formatted in Markdown. Use bold markdown (**text**) for keywords and knowledge points, and italic markdown (*text*) for words that require emphasis.
+
+Original Text:
+"""
+${originalText}
+"""`;
+
+    const response = await ai.models.generateContentStream({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+        config: useSearch ? { tools: [{ googleSearch: {} }] } : {},
+    });
+
+    for await (const chunk of response) {
+        yield chunk.text;
+    }
+}
+
+/**
+ * Refines a user's search query to be more effective.
+ */
+export const refineUserPrompt = async (query: string): Promise<string> => {
+    const prompt = `Refine the following user query to be more specific, effective, and well-phrased for a web search to find learning materials. Return only the refined query.
+
+Original query: "${query}"`;
+    
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+    });
+    
+    return response.text.trim().replace(/^"|"$/g, '');
+};
+
+/**
+ * Suggests extended learning topics based on provided context.
+ */
+export const suggestExtendedTopics = async (context: string): Promise<string[]> => {
+    const prompt = `Based on the following text, suggest 5 related or extended topics that a user might be interested in learning about. Return the topics as a JSON array of strings.
+
+Context:
+"""
+${context.substring(0, 4000)}
+"""
+
+Example output:
+["Topic 1", "Topic 2", "Topic 3", "Topic 4", "Topic 5"]`;
+
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+        config: {
+            responseMimeType: 'application/json',
+            responseSchema: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING },
+            },
+        },
+    });
+
     try {
-        const fullPrompt = `You are an expert prompt engineer and research assistant for an AI Tutor. A user is providing an initial topic or query. This input might contain a mix of content, multiple (and possibly unrelated) topics, and URLs.
-
-Your task is to analyze this input and help the user structure their learning by breaking down the content into logical sections.
-
-Based on the original user input, provide the following in a clear, well-formatted Markdown structure:
-1.  **A refined, more effective search prompt.** This prompt should be a clear instruction for the AI to generate a comprehensive report covering all the distinct topics found in the user's input.
-2.  **A list of suggested chapter topics.** Identify the distinct topics from the user's input and list them as separate chapters.
-3.  **A list of related keywords for each chapter.** For each suggested chapter, provide a set of relevant keywords that can help the user explore that specific topic further.
-
-Use the following format strictly:
-
-**Refined Prompt:**
-[Your refined version of the user's prompt, instructing the AI to generate a report covering the identified topics.]
-
-**Suggested Chapter Topics & Keywords:**
-- **Chapter: [Chapter Topic 1]**
-  - **Keywords:** [Keyword 1], [Keyword 2], [Keyword 3]
-- **Chapter: [Chapter Topic 2]**
-  - **Keywords:** [Keyword A], [Keyword B], [Keyword C]
-- **Chapter: [Chapter Topic 3]**
-  - **Keywords:** [Keyword X], [Keyword Y], [Keyword Z]
-... (continue for all identified topics)
-
----
-
-Original user input: "${prompt}"`;
-        
-        const response = await getAi().models.generateContent({
-            model: 'gemini-flash-lite-latest',
-            contents: fullPrompt,
-            config: {
-               systemInstruction: "You are an expert prompt engineer and research assistant. Your goal is to help users structure their learning by refining their prompts and suggesting related topics and keywords. You must follow the user's specified Markdown format exactly, without adding any introductory or concluding remarks."
-            }
-        });
-        return response.text.trim();
-    } catch (error) {
-        console.error("Error refining user prompt:", error);
-        // Return original prompt on error
-        return prompt; 
+        const jsonText = response.text;
+        const topics = JSON.parse(jsonText);
+        return Array.isArray(topics) ? topics.slice(0, 5) : [];
+    } catch (e) {
+        console.error("Failed to parse suggested topics:", e);
+        return [];
     }
 };
 
+/**
+ * Generates an image based on a text prompt.
+ */
+export const generateImage = async (prompt: string): Promise<string | null> => {
+    const response = await ai.models.generateImages({
+        model: 'imagen-4.0-generate-001',
+        prompt: prompt,
+        config: {
+            numberOfImages: 1,
+            outputMimeType: 'image/jpeg',
+            aspectRatio: '16:9',
+        },
+    });
+
+    if (response.generatedImages && response.generatedImages.length > 0) {
+        const base64ImageBytes = response.generatedImages[0].image.imageBytes;
+        return `data:image/jpeg;base64,${base64ImageBytes}`;
+    }
+    return null;
+};
+
+/**
+ * Refines a user's prompt for the AI Tutor.
+ */
 export const refineTutorPrompt = async (prompt: string, context: string): Promise<string> => {
-    try {
-        const fullPrompt = `You are an expert prompt engineer assisting a user in a chat with an AI Tutor. The user has provided an input, and your goal is to refine it to be clearer, more effective, and better structured to elicit the best possible response from the AI Tutor. The user might be asking a question, requesting an explanation, asking for an example, wanting to start a creative task, or something else entirely.
+    const systemInstruction = `You are an AI assistant helping a user refine their question to an AI Tutor. Based on the user's prompt and the current learning context, rewrite the prompt to be clearer, more specific, and more effective for eliciting a helpful educational response. Return only the refined prompt.
 
-Analyze the user's original input and the current learning context. Then, rewrite the user's input to be a more effective prompt.
-
-Consider the following techniques for refinement:
-- **Clarity and Specificity:** Rephrase vague statements into precise questions or instructions.
-- **Contextualization:** If the prompt is too general, add context from the learning material to make it more specific.
-- **Persona Adoption:** Suggest a persona for the AI Tutor if it would help (e.g., "Explain this to me like I'm a 10-year-old.").
-- **Format Specification:** If the user wants a structured answer, specify the desired format (e.g., "in a bulleted list," "as a table," "in a short paragraph").
-- **Task Decomposition:** If the user's request is complex, break it down into a logical, step-by-step query.
-- **Open-ended Exploration:** Rephrase a simple question to encourage a more detailed and exploratory answer from the tutor.
-
-Your output should ONLY be the refined prompt text, without any explanations, introductions, or extra formatting. Do not wrap it in markdown or quotes. Just provide the raw text of the refined prompt.
-
----
-Current Learning Context:
+Learning Context:
 """
-${context || "No specific chapter content is being viewed right now."}
-"""
----
-Original User Input:
-"""
-${prompt}
-"""
----`;
+${context.substring(0, 2000)}
+"""`;
 
-        const response = await getAi().models.generateContent({
-            model: 'gemini-flash-lite-latest',
-            contents: fullPrompt,
-            config: {
-               systemInstruction: "You are a prompt engineering assistant. Your task is to rewrite a user's prompt to be more effective for an AI Tutor. You must only return the refined prompt text, with no extra formatting or commentary."
-            }
-        });
-        return response.text.trim();
-
-    } catch (error) {
-        console.error("Error refining tutor prompt:", error);
-        return prompt; // Return original on error
-    }
-};
-
-export const getTutorResponse = async (
-    prompt: string,
-    context: string,
-    history: ChatMessage[],
-    useSearch: boolean
-): Promise<string> => {
-    try {
-        const systemInstructionWithSearch = `You are a helpful and knowledgeable AI Tutor named Reflect. Your goal is to provide comprehensive, well-organized answers to the user's questions.
-
-- First, use the provided "Current Chapter Content" as the primary context for your answer.
-- If the answer isn't fully available in the chapter content, use your own general knowledge to provide a complete response.
-- If the question requires up-to-date information, specific facts you don't know, or deeper details, perform a web search to find the information.
-- Structure your answers clearly using Markdown (headings, lists, bold text) for readability.
-- If you use web search, you MUST cite your sources by listing the URLs you used at the end of your response under a "Sources:" heading.
-- Be friendly and encouraging.`;
-
-        const systemInstructionWithoutSearch = `You are a helpful and knowledgeable AI Tutor named Reflect. Your goal is to provide comprehensive, well-organized answers to the user's questions using only your pre-existing knowledge and the provided chapter content. Do not perform any web searches.
-
-- First, use the provided "Current Chapter Content" as the primary context for your answer.
-- If the answer isn't fully available in the chapter content, use your own general knowledge to provide a complete response.
-- Structure your answers clearly using Markdown (headings, lists, bold text) for readability.
-- Be friendly and encouraging.`;
-
-        const contextualPrompt = `
-Here is the content for the chapter we are currently studying:
----
-**Current Chapter Content:**
-${context || "No specific chapter content is being viewed right now."}
----
-
-Now, please answer my question: ${prompt}
-`;
-
-        const historyForModel = history.slice(0, -1).map(message => ({
-            role: message.sender === 'user' ? 'user' : 'model',
-            parts: [{ text: message.text }]
-        }));
-
-        historyForModel.push({
-            role: 'user',
-            parts: [{ text: contextualPrompt }]
-        });
-
-        const config: any = {
-            systemInstruction: useSearch ? systemInstructionWithSearch : systemInstructionWithoutSearch,
-        };
-
-        if (useSearch) {
-            config.tools = [{ googleSearch: {} }];
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: `Original prompt: "${prompt}"`,
+        config: {
+            systemInstruction
         }
+    });
 
-        const response = await getAi().models.generateContent({
-            model: 'gemini-flash-lite-latest',
-            contents: historyForModel,
-            config,
-        });
-
-        return response.text;
-    } catch (error) {
-        console.error("Error getting tutor response:", error);
-        return "Sorry, I encountered an error while trying to answer your question.";
-    }
+    return response.text.trim();
 };
 
+const formatHistoryForGemini = (history: ChatMessage[]): Content[] => {
+    const geminiHistory: Content[] = [];
+    history.forEach(msg => {
+        if (msg.text) {
+             geminiHistory.push({
+                role: msg.sender === 'user' ? 'user' : 'model',
+                parts: [{ text: msg.text }],
+            });
+        }
+    });
+    // The last message is the current user prompt, which shouldn't be in history for a new request.
+    if (geminiHistory.length > 0) {
+        geminiHistory.pop();
+    }
+    return geminiHistory;
+};
+
+/**
+ * Gets a response from the AI Tutor based on a prompt, context, and history.
+ */
+export const getTutorResponse = async (prompt: string, context: string, history: ChatMessage[], useSearch: boolean): Promise<string> => {
+    const systemInstruction = `You are an expert AI Tutor. Your goal is to help a user understand a specific topic based on the provided learning material. Be encouraging, clear, and provide detailed explanations. When relevant, use the conversation history to maintain context.
+
+Current Learning Material (Context):
+"""
+${context}
+"""`;
+    
+    const chat = ai.chats.create({
+        model: 'gemini-2.5-flash',
+        history: formatHistoryForGemini(history),
+        config: {
+            systemInstruction,
+            tools: useSearch ? [{ googleSearch: {} }] : []
+        }
+    });
+
+    const response = await chat.sendMessage({ message: prompt });
+    return response.text;
+};
+
+/**
+ * Generates a title for a paragraph of text.
+ */
 export const generateParagraphTitle = async (paragraph: string): Promise<string> => {
-    try {
-        const prompt = `Generate a very short, concise, and relevant subtitle (3-5 words) for the following paragraph. The subtitle should be suitable for a '##' Markdown heading. Do not include any prefix like "Title:", quotes, or markdown formatting. Just return the raw text for the title.
+    const prompt = `Generate a concise and descriptive title (3-5 words) for the following paragraph. The title should be suitable as a sub-heading in a document. Return only the title text.
 
 Paragraph:
 """
-${paragraph}
+${paragraph.substring(0, 1000)}
 """`;
-
-        const response = await getAi().models.generateContent({
-            model: 'gemini-flash-lite-latest',
-            contents: prompt,
-            config: {
-               systemInstruction: "You are a title generation assistant. Your task is to create a short, relevant subtitle for a given text."
-            }
-        });
-        // Clean up any markdown, quotes, or newlines
-        return response.text.trim().replace(/['"#*\r\n]/g, '');
-    } catch (error) {
-        console.error("Error generating paragraph title:", error);
-        return "Additional Notes"; // Fallback title
-    }
+    
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+    });
+    
+    return response.text.trim().replace(/^"|"$/g, '');
 };
 
-export const generateChapterTitle = async (chapterText: string): Promise<string> => {
-    try {
-        const prompt = `Generate a concise and engaging title for a new chapter based on the following text. The title should be suitable for a '##' Markdown heading. Do not include any prefix like "Title:", quotes, or markdown formatting like '##'. Just return the raw text for the title.
+/**
+ * Rewrites a chapter to improve its quality, streaming the result.
+ */
+export async function* rewriteChapterStream(chapterContent: string): AsyncGenerator<string> {
+    const prompt = `You are an expert technical writer and educator. Your task is to completely rewrite and improve the following chapter. Enhance its clarity, structure, and engagement. Add more details, examples, and analogies where appropriate. The final output must be in well-formatted Markdown and should be a significant improvement over the original.
 
-Text:
+Original Chapter:
 """
-${chapterText}
-"""`;
-
-        const response = await getAi().models.generateContent({
-            model: 'gemini-flash-lite-latest',
-            contents: prompt,
-            config: {
-               systemInstruction: "You are a title generation assistant. Your task is to create a short, relevant chapter title for a given text."
-            }
-        });
-        // Clean up any markdown, quotes, or newlines
-        return response.text.trim().replace(/['"#*\r\n]/g, '');
-    } catch (error) {
-        console.error("Error generating chapter title:", error);
-        return "New Chapter"; // Fallback title
-    }
-};
-
-const refinePromptTemplate = (text: string) => `You are a professional research assistant. Your task is to create a comprehensive and well-structured report in Markdown format based on the user's provided text.
-
-The provided text may contain a mix of content, multiple (and possibly unrelated) topics, and URLs.
-
-Your instructions are:
-1.  Analyze all the content provided in the text.
-2.  Identify all distinct topics. If the topics are unrelated, plan to address them in separate chapters.
-3.  If URLs are present, use the information from those URLs as primary sources for the relevant topics. Also, perform a web search to gather additional information to enrich the content and create a comprehensive report.
-4.  If no URLs are present, but topics for research are mentioned, perform a web search to build the report. If the text is just content to be reformatted, then simply reformat and structure it.
-5.  Synthesize all gathered information into a single, coherent report.
-6.  For each chapter, identify and list 3-5 relevant keywords that summarize the main concepts of that chapter. These keywords should be placed on a new line immediately following the chapter title, formatted in bold.
-7.  Create a report title that accurately reflects the main subject or subjects of the report.
-8.  Strictly follow the structure and formatting rules below.
-
----
-Provided Content:
+${chapterContent}
 """
-${text}
-"""
----
 
-### Report Structure and Formatting Rules
+Rewritten Chapter:`;
 
-# [Report Title]
-Provide a clear and descriptive title summarizing the topic(s).
+    const response = await ai.models.generateContentStream({
+        model: 'gemini-2.5-pro',
+        contents: prompt,
+    });
 
----
-
-## Table of Contents
-- [Introduction](#introduction)
-- [Chapter 1: First Main Topic](#chapter-1)
-- [Chapter 2: Second Main Topic](#chapter-2)
-... you may add more chapters as needed for distinct topics ...
-- [Conclusion](#conclusion)
-- [Sources](#sources)
-
-(Each TOC item MUST link to a simple anchor. Use '#introduction', '#conclusion', '#sources', and for chapters, use the format '#chapter-1', '#chapter-2', and so on. The corresponding headings in the report body will be, for example, '## Introduction', '## Chapter 1: First Main Topic', etc.)
-
----
-
-## Introduction
-Provide a concise introduction explaining the background, importance, and what the report will cover. For reports with multiple unrelated topics, the introduction should briefly mention each topic and state that the report will cover them separately.
-
----
-
-## Chapter 1: [Main Theme or Finding]
-**Keywords:** Keyword A, Keyword B, Keyword C
-
-### Subchapter Title
-Describe details under this chapter. Use clear structure and explain in your own words.
-
-You may include:
-- **Key points** in bullet form
-- Inline code snippets: \`example_code_here\`
-- Important terms in **bold**
-- Quotes or facts in *italic*
-
-### Subchapter Title
-(Continue for other subtopics or aspects)
-
----
-
-## Chapter 2: [Another Major Section]
-**Keywords:** Keyword X, Keyword Y, Keyword Z
-
-### Subchapter Title
-(Continue structure as above)
-
----
-
-## Summary / Conclusion
-Summarize key insights, implications, and recommendations for each topic covered.
-
----
-
-## Sources
-List all the web sources used to generate this report in a bulleted list of Markdown links. If you performed a web search, this should include the URLs provided by the user and any additional sources you found.
-
----
-
-### Formatting Rules
-- Use \`#\`, \`##\`, \`###\` for H1, H2, and H3 headings.
-- Use **bold** for emphasis and *italic* for soft emphasis.
-`;
-
-
-export const refineText = async (text: string, useSearch = false): Promise<string> => {
-    try {
-        const prompt = refinePromptTemplate(text);
-        
-        const config: any = {
-            systemInstruction: "You are a professional research assistant. Your task is to write a structured, well-formatted report based on the provided text, strictly following the user's instructions for structure and Markdown formatting."
-        };
-
-        if (useSearch) {
-            config.tools = [{ googleSearch: {} }];
-        }
-
-        const response = await getAi().models.generateContent({
-            model: 'gemini-flash-lite-latest',
-            contents: prompt,
-            config: config
-        });
-        return response.text;
-    } catch (error) {
-        console.error("Error refining text:", error);
-        // Return original text on error so user work is not lost
-        return `Sorry, I couldn't process the content. The original text is preserved below:\n\n---\n\n${text}`; 
-    }
-};
-
-export async function* refineTextStream(text: string, useSearch = false): AsyncGenerator<string, void, unknown> {
-    try {
-        const prompt = refinePromptTemplate(text);
-
-        const config: any = {
-            systemInstruction: "You are a professional research assistant. Your task is to write a structured, well-formatted report based on the provided text, strictly following the user's instructions for structure and Markdown formatting."
-        };
-
-        if (useSearch) {
-            config.tools = [{ googleSearch: {} }];
-        }
-
-        const response = await getAi().models.generateContentStream({
-            model: 'gemini-flash-lite-latest',
-            contents: prompt,
-            config: config
-        });
-        
-        for await (const chunk of response) {
-            yield chunk.text;
-        }
-
-    } catch (error) {
-        console.error("Error refining text stream:", error);
-        yield `Sorry, I couldn't refine the text at this moment. The original text is preserved below:\n\n---\n\n${text}`;
+    for await (const chunk of response) {
+        yield chunk.text;
     }
 }
 
-export const suggestExtendedTopics = async (contextText: string): Promise<string[]> => {
-    if (!contextText.trim()) {
-        return [];
-    }
+/**
+ * Generates a new Q&A section for a chapter, streaming the result.
+ */
+export async function* rewriteQnAStream(chapterContent: string): AsyncGenerator<string> {
+    const prompt = `Based on the provided chapter content, generate a "Q&A" section in Markdown. Create 3-5 insightful questions that a student might have after reading the chapter, and provide clear, comprehensive answers.
 
-    try {
-        const prompt = `Based on the following text, suggest 5 related topics for further learning and research. The topics should extend beyond the core concepts mentioned in the text, providing a broader spectrum of knowledge.
-
-Return the topics as a JSON array of strings. For example: ["topic 1", "topic 2", "topic 3", "topic 4", "topic 5"].
-Do not include any other text or formatting in your response, only the JSON array.
-
-Text:
+Chapter Content:
 """
-${contextText}
-"""`;
+${chapterContent}
+"""
 
-        const response = await getAi().models.generateContent({
-            model: 'gemini-flash-lite-latest',
-            contents: prompt,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.ARRAY,
-                    items: {
-                        type: Type.STRING,
-                        description: 'A suggested learning topic that extends from the provided text.'
+Format the output starting with a "### Q&A" heading.`;
+
+    const response = await ai.models.generateContentStream({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+    });
+
+    for await (const chunk of response) {
+        yield chunk.text;
+    }
+}
+
+/**
+ * Generates a title for a new chapter based on its content.
+ */
+export const generateChapterTitle = async (chapterContent: string): Promise<string> => {
+    const prompt = `Generate a concise and descriptive title for a new chapter based on the following text content. The title should not include the word "Chapter" or a number. Return only the title.
+
+Content:
+"""
+${chapterContent.substring(0, 2000)}
+"""`;
+    
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+    });
+    
+    return response.text.trim().replace(/^"|"$/g, '');
+};
+
+/**
+ * Starts a reflection session by providing a greeting and suggestions.
+ */
+export const startReflection = async (chapterTitle: string, chapterContent:string): Promise<{ greeting: string, suggestions: string[] }> => {
+    const prompt = `You are an AI Reflection Coach. Your goal is to help a user deepen their understanding of a specific chapter.
+    
+Chapter Title: "${chapterTitle}"
+
+Your task is to start the reflection session.
+1. Write a brief, encouraging greeting to welcome the user to the reflection for this chapter.
+2. Based on the chapter content, generate 3-4 diverse "points of reflection". These should be short, engaging questions or statements (under 10 words) that prompt deeper thinking.
+3. Return the greeting and suggestions in a single JSON object.
+
+Chapter Content:
+"""
+${chapterContent.substring(0, 4000)}
+"""
+
+Example Output Format:
+{
+  "greeting": "Welcome to your reflection on 'The Transformer Architecture'! I'm here to help you explore the key concepts. What would you like to focus on first?",
+  "suggestions": [
+    "Explain self-attention in your own words.",
+    "Why are positional encodings important?",
+    "Compare Transformers to RNNs.",
+    "Let's discuss emergent abilities."
+  ]
+}
+`;
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+        config: {
+            responseMimeType: "application/json",
+            responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                    greeting: { type: Type.STRING },
+                    suggestions: {
+                        type: Type.ARRAY,
+                        items: { type: Type.STRING },
                     },
                 },
-            }
-        });
+                required: ['greeting', 'suggestions'],
+            },
+        },
+    });
 
-        const jsonStr = response.text.trim();
-        const topics = JSON.parse(jsonStr);
-        if (Array.isArray(topics) && topics.every(t => typeof t === 'string')) {
-            return topics;
-        }
-        return [];
-
-    } catch (error) {
-        console.error("Error suggesting extended topics:", error);
-        return [];
+    try {
+        return JSON.parse(response.text);
+    } catch (e) {
+        console.error("Failed to parse startReflection response:", e);
+        return {
+            greeting: "Hello! I'm ready to reflect on this chapter with you. What's on your mind?",
+            suggestions: ["Summarize the main idea.", "What was most surprising?", "What was most confusing?"]
+        };
     }
 };
 
-export async function* rewriteChapterStream(chapterContent: string): AsyncGenerator<string, void, unknown> {
-    const prompt = `You are an expert educator and content strategist. Your task is to rewrite the provided chapter content into a highly organized, engaging, and clear educational article.
+/**
+ * Gets a response from the AI Reflection Coach.
+ */
+export const getReflectionResponse = async (
+    chapterContent: string,
+    memory: string,
+    history: ChatMessage[],
+    latestUserMessage: string
+): Promise<{ updatedMemory: string; responseToUser: string; nextQuestion: string; imagePrompt: string | null; choices: string[] | null; }> => {
+    
+    const historyString = history
+        .map(m => `${m.sender === 'user' ? 'User' : 'AI'}: ${m.text}`)
+        .join('\n');
 
-Retain all essential information, including original content, appended paragraphs, and Q&A sections. Improve the overall flow and clarity.
-
-Follow these instructions strictly:
-
-1.  **Chapter Title:**
-    *   Start with the original chapter title using a \`##\` Markdown heading.
-
-2.  **Main Content Table of Contents:**
-    *   Immediately after the chapter title, create a bulleted list of hyperlinks.
-    *   Each item in the list should link to a main content subtitle (\`###\` heading) that appears later in the chapter.
-    *   Use simple anchor links (e.g., \`[Subtitle Name](#subtitle-name)\`).
-    *   **Do not** include the Q&A section in this table of contents.
-
-3.  **Main Content Body:**
-    *   Separate this section from the TOC with a \`---\` divider.
-    *   Rewrite and combine the original chapter text and any appended paragraphs into logical sections.
-    *   Give each section a concise and descriptive subtitle using a \`###\` Markdown heading. These headings will be the targets for the TOC links.
-    *   Use formatting like **bold** for key terms and bullet points for lists to improve readability.
-    *   Use \`---\` dividers to separate distinct sections within the main content if it improves structure.
-
-4.  **Q&A Section:**
-    *   Place the entire Q&A section at the very end of the chapter, separated from the main content by a \`---\` divider.
-    *   Start the section with a \`### Q&A\` heading.
-    *   **Q&A Table of Contents:** Immediately after the \`### Q&A\` heading, create a bulleted list where each item is a full question that hyperlinks to its corresponding answer below (e.g., \`[Full Question Text?](#full-question-text)\`).
-    *   Separate the Q&A TOC from the answers with a \`---\` divider.
-    *   **Q&A Pairs:** Format each question-answer pair as follows:
-        *   The question should be a \`####\` heading (e.g., \`#### Q: Full Question Text?\`). This creates the anchor for the hyperlink.
-        *   The answer should follow directly, starting with \`**A:**\`.
-
-5.  **Final Output:**
-    *   The result must be a single, coherent Markdown document adhering to this structure.
-
----
-Original Chapter Content to Rewrite:
+    const prompt = `
+**Current Chapter Content:**
 """
 ${chapterContent}
 """
----`;
 
-    try {
-        const response = await getAi().models.generateContentStream({
-            model: 'gemini-flash-lite-latest',
-            contents: prompt,
-            config: {
-               systemInstruction: "You are an expert educator and content writer. Rewrite the user's text following their instructions precisely."
-            }
-        });
-
-        for await (const chunk of response) {
-            yield chunk.text;
-        }
-    } catch (error) {
-        console.error("Error rewriting chapter:", error);
-        yield `Sorry, an error occurred while rewriting the chapter. The original content is preserved below:\n\n---\n\n${chapterContent}`;
-    }
-}
-
-export async function* rewriteQnAStream(chapterContent: string): AsyncGenerator<string, void, unknown> {
-    const prompt = `You are an expert educator. Your task is to generate or rewrite the Q&A section for the provided chapter content.
-
-**CRITICAL INSTRUCTIONS:**
-1.  **YOUR OUTPUT MUST BE ONLY THE Q&A SECTION.** Do NOT include the main article content, the chapter title, or any introductory text. Your response must start directly with the \`### Q&A\` heading.
-2.  If the provided content already has a Q&A section, rewrite it for clarity, accuracy, and improved formatting.
-3.  If the provided content does NOT have a Q&A section, create a new one from scratch based on the main article text.
-4.  Follow this Markdown format strictly:
-
-### Q&A
-- [Full Question Text 1?](#full-question-text-1)
-- [Full Question Text 2?](#full-question-text-2)
-...
-
----
-
-#### Q: Full Question Text 1?
-**A:** The detailed answer to the first question.
-
----
-
-#### Q: Full Question Text 2?
-**A:** The detailed answer to the second question.
-
----
-
-**Provided Chapter Content:**
+**Your Memory of the User's Progress on This Chapter:**
 """
-${chapterContent}
+${memory || 'No previous reflection session for this chapter.'}
 """
----
+
+**Recent Conversation History:**
+"""
+${historyString}
+"""
+
+**User's Latest Message:**
+"""
+${latestUserMessage}
+"""
 `;
+    
+    const systemInstruction = `You are an AI Reflection Coach and expert educator named Reflect. Your primary goal is to foster deep understanding using a patient, Socratic teaching method. Each concept is explored through a clear, structured loop: Question -> Guidance -> Explanation. You are always energetic, encouraging, and insightful.
+
+**Your Task: Execute the Teaching Loop**
+
+Based on the provided context (chapter, memory, history), analyze the user's latest message and follow this non-negotiable process:
+
+**STEP 1: EVALUATE THE USER'S MESSAGE**
+- Is the user answering a question I previously asked?
+- Is their answer correct, partially correct, or incorrect?
+- Are they asking for a hint or saying they don't know?
+- Are they simply acknowledging a previous explanation (e.g., "okay", "got it", "thanks")?
+
+**STEP 2: CHOOSE YOUR ACTION**
+
+**Action A: The user's answer is CORRECT.**
+- If the user answers correctly (on any attempt):
+    - **You MUST now provide the 'Final Explanation'.** Do not immediately ask a new question.
+    - See 'FINAL EXPLANATION' phase instructions below.
+
+**Action B: The user's answer is INCORRECT or INCOMPLETE (and they have had less than 2 previous attempts on this question).**
+    - **You MUST now provide a 'Guiding Hint'.** Do not give the full answer yet.
+    - See 'GUIDING HINT' phase instructions below.
+
+**Action C: The user is STUCK.**
+- This happens if the user's answer is incorrect after 2 attempts, OR if they say "I don't know", "give up", or ask for the answer.
+    - **You MUST now provide the 'Final Explanation'.**
+    - See 'FINAL EXPLANATION' phase instructions below.
+
+**Action D: The user is ACKNOWLEDGING a Final Explanation.**
+- This happens *after* you have already given a 'Final Explanation' (e.g., the user says "okay", "got it", "thanks").
+    - **You MUST now generate a COMPLETELY NEW QUESTION** on a different topic from the chapter.
+    - See 'NEW QUESTION' phase instructions below.
+
+--- **PHASE INSTRUCTIONS** ---
+
+**PHASE: GUIDING HINT**
+- **\`responseToUser\` (Chat):** Be encouraging. You MUST start by giving direct feedback on the user's answer. Use phrases like *'You're on the right track!', 'That's partially correct.', 'Good guess, but let's look closer.',* or *'You've got part of it!'*.
+- After the initial feedback, briefly explain *what part* of their answer was correct and where the misconception might be.
+- Then, provide a small, targeted hint or ask a simpler, leading sub-question to guide them toward the full answer. *'You're right about the 'cool' and 'dark' parts, but let's think about why 'bright' might not be ideal. What did the chapter say about light's effect on sleep hormones?'*
+- **\`nextQuestion\` (Slide):** The slide content MUST be this new hint or sub-question. It must still relate to the original question.
+- **\`updatedMemory\`:** Note that the user is struggling with the current concept and what their specific misconception is.
+- **Do not move to a new topic.**
+
+**PHASE: FINAL EXPLANATION**
+- **\`responseToUser\` (Chat):** This is a detailed, conversational explanation.
+    - Start by affirming the user's journey. *'Exactly! You got it.'* or *'Let's break down the full answer.'*
+    - State the correct answer clearly.
+    - **You MUST explain in detail WHY it is correct**, linking it back to the chapter's core principles.
+    - If the user had a misconception, gently and explicitly address it, explaining why their initial thought might have been incorrect. *'Earlier, you mentioned X, which is a common thought because of Y. However, in this context, the key is Z, which is why [Correct Answer] is the right conclusion.'*
+- **\`nextQuestion\` (Slide):** This is a **final summary slide**, NOT a question. It must contain: 1. The concise correct answer. 2. The most critical part of the 'why' as a key takeaway.
+- **\`updatedMemory\`:** Update memory to reflect the user's final understanding (e.g., 'mastered' if they got it right, 'explained' if you had to tell them).
+
+**PHASE: NEW QUESTION**
+- **\`responseToUser\` (Chat):** A brief transition. *'Great! Let's move to the next concept.'* or *'Alright, ready for the next one?'*
+- **\`nextQuestion\` (Slide):** A brand new question slide on a different topic from the chapter.
+- **Follow General Slide Formatting Rules:**
+    - Format as a rich Markdown "slide" with headings.
+    - **Interactivity (Multiple Choice):** If suitable, provide 3-4 options in the slide's Markdown (formatted as 'A)', 'B)', etc.) and return them in the 'choices' JSON array.
+    - **Visuals:** If a slide feels sparse or a concept is complex, generate a descriptive 'imagePrompt'.
+    - **Highlighting:** Use bold (\`**text**\`) for keywords (yellow) and italics (\`*text*\`) for emphasis (red).
+
+**Output Format:**
+You MUST return a single JSON object with the following structure. Do not add any text outside of the JSON object.
+{
+  "updatedMemory": "The new, updated summary of the user's progress.",
+  "responseToUser": "Your conversational response to the user's last message.",
+  "nextQuestion": "Your next question, hint, or final answer summary, formatted as a rich Markdown slide.",
+  "imagePrompt": "A descriptive prompt for a helpful image, or null if not needed.",
+  "choices": "An array of strings for multiple choice options, or null if not applicable."
+}`;
+
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+        config: {
+            systemInstruction,
+            responseMimeType: 'application/json',
+            responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                    updatedMemory: { type: Type.STRING },
+                    responseToUser: { type: Type.STRING },
+                    nextQuestion: { type: Type.STRING },
+                    imagePrompt: { type: Type.STRING, nullable: true },
+                    choices: {
+                        type: Type.ARRAY,
+                        items: { type: Type.STRING },
+                        nullable: true,
+                    },
+                },
+                required: ['updatedMemory', 'responseToUser', 'nextQuestion', 'imagePrompt', 'choices'],
+            },
+        },
+    });
 
     try {
-        const response = await getAi().models.generateContentStream({
-            model: 'gemini-flash-lite-latest',
-            contents: prompt,
-            config: {
-               systemInstruction: "You are an expert educator focused on creating high-quality Q&A sections. Follow the user's formatting instructions precisely, and only output the Q&A section itself."
-            }
-        });
-
-        for await (const chunk of response) {
-            yield chunk.text;
-        }
-    } catch (error) {
-        console.error("Error rewriting Q&A:", error);
-        yield `Sorry, an error occurred while rewriting the Q&A section.`;
+        return JSON.parse(response.text);
+    } catch (e) {
+        console.error("Failed to parse getReflectionResponse:", e, response.text);
+        return {
+            updatedMemory: memory,
+            responseToUser: "I'm sorry, I got a little lost in my thoughts. Could you please repeat your answer or choose another topic?",
+            nextQuestion: "## Let's try again!\n\nWhat would you like to focus on from this chapter?",
+            imagePrompt: null,
+            choices: null,
+        };
     }
+};
+
+/**
+ * Dummy export for refineText to satisfy imports. The stream version is used.
+ */
+export const refineText = async (text: string): Promise<string> => {
+    let result = '';
+    for await (const chunk of refineTextStream(text, true)) {
+        result += chunk;
+    }
+    return result;
 }

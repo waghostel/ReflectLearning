@@ -172,6 +172,7 @@ const learningTopics = [
 
 interface UploadPageProps {
     onDone: (files: UploadFile[], rawText: string) => void;
+    initialText?: string;
 }
 
 const getFileIcon = (fileType: string) => {
@@ -193,7 +194,7 @@ const UploadStatusItem: React.FC<{ file: UploadFile }> = ({ file }) => {
                 <div className="flex flex-col justify-center overflow-hidden">
                     <p className="text-white text-base font-medium leading-normal truncate">{file.file.name}</p>
                     <p className="text-[#92a4c9] text-sm font-normal leading-normal truncate">
-                        {file.status !== 'completed' ? `Analyzing...` : `Completed`}
+                        {file.status !== 'completed' ? `Analyzing...` : `Content appended to editor`}
                     </p>
                 </div>
             </div>
@@ -209,8 +210,8 @@ const UploadStatusItem: React.FC<{ file: UploadFile }> = ({ file }) => {
     );
 };
 
-const UploadPage: React.FC<UploadPageProps> = ({ onDone }) => {
-    const [pastedText, setPastedText] = useState('');
+const UploadPage: React.FC<UploadPageProps> = ({ onDone, initialText }) => {
+    const [pastedText, setPastedText] = useState(initialText || '');
     const [uploadedFiles, setUploadedFiles] = useState<UploadFile[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearching, setIsSearching] = useState(false);
@@ -219,10 +220,10 @@ const UploadPage: React.FC<UploadPageProps> = ({ onDone }) => {
     const [isRefining, setIsRefining] = useState(false);
     const [isSuggestingTopics, setIsSuggestingTopics] = useState(false);
     const [isSearchRefining, setIsSearchRefining] = useState(false);
-    const [isMarkdownMode, setIsMarkdownMode] = useState(false);
+    const [isMarkdownMode, setIsMarkdownMode] = useState(!!initialText && (initialText.includes('## ') || initialText.includes('\n---\n')));
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [suggestedTopics, setSuggestedTopics] = useState<string[]>([]);
-    const [isUploadSectionVisible, setIsUploadSectionVisible] = useState(true);
+    const [isUploadSectionVisible, setIsUploadSectionVisible] = useState(!initialText);
     const [isInputActive, setIsInputActive] = useState(false);
     const [isEditorFocused, setIsEditorFocused] = useState(false);
     const [isUserScrolledUp, setIsUserScrolledUp] = useState(false);
@@ -306,35 +307,51 @@ const UploadPage: React.FC<UploadPageProps> = ({ onDone }) => {
 
     const processFile = useCallback((upload: UploadFile) => {
         setUploadedFiles(prev => prev.map(f => f.id === upload.id ? { ...f, status: 'in_progress' } : f));
-    
-        // Start a slow, continuous animation toward 90%
-        animateProgress(upload.id, upload.progress, 90, 12000);
-    
-        const completeUpload = (analysisResult: string) => {
-            // When processing completes, animate quickly from 90% to 100%
+        animateProgress(upload.id, upload.progress, 90, 8000); // Animate to 90% while processing
+
+        const handleProcessingComplete = (contentToAppend: string) => {
             animateProgress(upload.id, 90, 100, 400, () => {
-                setUploadedFiles(prev => prev.map(f => 
-                    f.id === upload.id 
-                    ? { ...f, status: 'completed', progress: 100, analysis: analysisResult } 
+                setUploadedFiles(prev => prev.map(f =>
+                    f.id === upload.id
+                    ? { ...f, status: 'completed', progress: 100, analysis: "Content extracted and appended." }
                     : f
                 ));
             });
+
+            setPastedText(prev => {
+                const separator = prev.trim() ? '\n\n---\n\n' : '';
+                return prev + separator + contentToAppend;
+            });
+            focusOnPasting();
+            setIsMarkdownMode(true);
         };
-    
-        if (upload.file.type.startsWith('image/')) {
-            const reader = new FileReader();
+
+        const file = upload.file;
+        const reader = new FileReader();
+
+        if (file.type.startsWith('image/')) {
             reader.onload = async (e) => {
                 const base64Data = (e.target?.result as string).split(',')[1];
-                const analysisResult = await analyzeImage(base64Data, upload.file.type, "Describe this image and its potential as a learning material. What key concepts could be taught using this image?");
-                completeUpload(analysisResult);
+                const analysisResult = await analyzeImage(base64Data, file.type, "Describe this image in detail. What are the key elements and what context can be inferred from it?");
+                const content = `### Analysis of image: ${file.name}\n\n${analysisResult}`;
+                handleProcessingComplete(content);
             };
-            reader.readAsDataURL(upload.file);
+            reader.readAsDataURL(file);
+        } else if (file.type === 'text/plain' || file.type === 'text/markdown') {
+            reader.onload = (e) => {
+                const textContent = e.target?.result as string;
+                const content = `### Content from: ${file.name}\n\n${textContent}`;
+                handleProcessingComplete(content);
+            };
+            reader.readAsText(file);
         } else {
-            // Simulate processing for non-image files
+            // For PDF, DOC, PPT, etc., use the filename as a research topic.
+            const fileName = file.name;
+            const placeholderContent = `### Sourced from: ${fileName}\n\n*This document will be used as a primary source during the "Refine" process to generate a comprehensive report on the topics it contains.*`;
+            
             setTimeout(() => {
-                const analysisResult = `Content from ${upload.file.name} is ready for the learning session.`;
-                completeUpload(analysisResult);
-            }, 3000);
+                handleProcessingComplete(placeholderContent);
+            }, 1500); // Simulate processing time
         }
     }, [animateProgress]);
 
@@ -378,8 +395,6 @@ const UploadPage: React.FC<UploadPageProps> = ({ onDone }) => {
             textareaRef.current.style.height = 'auto';
         }
     
-        // We will now append content instead of replacing it.
-        // A flag to handle adding a separator before the first chunk.
         let isFirstChunk = true;
     
         try {
@@ -397,7 +412,6 @@ const UploadPage: React.FC<UploadPageProps> = ({ onDone }) => {
             }
         } catch (error) {
             console.error("Streaming search failed:", error);
-            // This catch is for network errors before stream starts, as the stream itself handles API errors.
              setPastedText(prev => {
                 const separator = prev.trim() ? '\n\n---\n\n' : '';
                 return prev + separator + "Sorry, an error occurred while searching for materials.";
@@ -444,7 +458,7 @@ const UploadPage: React.FC<UploadPageProps> = ({ onDone }) => {
         const originalText = pastedText;
         setPastedText('');
     
-        const useSearch = true; // Always allow AI to search to enrich content
+        const useSearch = true;
 
         try {
             const stream = refineTextStream(originalText, useSearch);
@@ -549,8 +563,6 @@ const UploadPage: React.FC<UploadPageProps> = ({ onDone }) => {
             },
             onmessage: async (message: LiveServerMessage) => {
                 if (message.serverContent?.inputTranscription) {
-                    // Fix: The 'done' property does not exist on the Transcription type.
-                    // The text is appended to show the streaming transcription.
                     const text = message.serverContent.inputTranscription.text;
                     currentInputTranscription += text;
                     setSearchQuery(currentInputTranscription);
@@ -708,7 +720,7 @@ const UploadPage: React.FC<UploadPageProps> = ({ onDone }) => {
                 <div className="flex flex-1 items-center justify-end gap-8">
                     <button 
                         onClick={handleLoadExampleClick}
-                        className="cursor-pointer items-center justify-center overflow-hidden rounded-full px-6 py-2 bg-amber-600 border-[2.5px] border-solid border-amber-500 text-white text-sm font-medium leading-normal hover:bg-amber-700"
+                        className="cursor-pointer items-center justify-center overflow-hidden rounded-full px-6 py-2 bg-[#fdffcd] border-[2.5px] border-solid border-yellow-400 text-neutral-800 text-sm font-medium leading-normal hover:bg-yellow-200"
                     >
                         Load Example
                     </button>
@@ -763,12 +775,6 @@ const UploadPage: React.FC<UploadPageProps> = ({ onDone }) => {
                     <div className={`flex items-center px-4 pb-2 ${isUploadSectionVisible ? 'pt-8' : 'pt-16'} ${isMarkdownMode ? 'justify-end' : 'justify-between'}`}>
                          {!isMarkdownMode && <h3 className="text-white text-lg font-bold leading-tight tracking-[-0.015em]">Paste contents / URLs</h3>}
                          <div className="flex items-center gap-4">
-                            <button
-                                onClick={handleSuggestExtendedTopics}
-                                disabled={isSuggestingTopics || !pastedText.trim()}
-                                className="cursor-pointer items-center justify-center overflow-hidden rounded-full px-4 py-1 bg-[#232f48] border-[2.5px] border-solid border-[#34405a] text-white text-sm font-medium leading-normal hover:bg-[#34405a] disabled:opacity-50 disabled:cursor-not-allowed">
-                                    {isSuggestingTopics ? 'Suggesting...' : 'Suggest Topics'}
-                            </button>
                             <button 
                                 onClick={handleRefineText}
                                 disabled={isRefining || !pastedText.trim()}
@@ -865,11 +871,18 @@ const UploadPage: React.FC<UploadPageProps> = ({ onDone }) => {
                         <div className="absolute bottom-full w-full mb-2">
                             <div className="relative">
                                 <div className="flex flex-wrap gap-2 pb-1">
+                                    <button
+                                        onClick={handleSuggestExtendedTopics}
+                                        disabled={isSuggestingTopics || !pastedText.trim()}
+                                        className="bg-[#fdffcd] border border-yellow-400 text-neutral-800 text-base px-4 py-2 rounded-2xl hover:bg-yellow-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {isSuggestingTopics ? 'Suggesting...' : 'Suggest Topics'}
+                                    </button>
                                     {suggestedTopics.map((topic, index) => (
                                         <button
                                             key={index}
                                             onClick={() => setSearchQuery(topic)}
-                                            className="bg-[#232f48] border border-[#34405a] text-white text-base text-left px-4 py-2 rounded-2xl hover:bg-[#34405a]"
+                                            className="bg-[#232f48] border border-[#34405a] text-white text-base px-4 py-2 rounded-2xl hover:bg-[#34405a]"
                                         >
                                             {topic}
                                         </button>
