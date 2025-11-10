@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { UploadFile, FileIconType } from '../types';
-import { analyzeImage, searchLearningMaterialsStream, connectLive, refineText, refineTextStream, refineUserPrompt, suggestExtendedTopics } from '../services/geminiService';
+// FIX: Update import to include LiveConfig type
+import { analyzeImage, searchLearningMaterialsStream, connectLive, refineTextStream, refineUserPrompt, suggestExtendedTopics, LiveConfig } from '../services/geminiService';
 import { LogoIcon, FilePdfIcon, FilePptIcon, FileDocIcon, FileImageIcon } from './Icons';
 import { LiveServerMessage, Blob } from '@google/genai';
 import Markdown from 'react-markdown';
@@ -331,10 +332,19 @@ const UploadPage: React.FC<UploadPageProps> = ({ onDone, initialText }) => {
 
         if (file.type.startsWith('image/')) {
             reader.onload = async (e) => {
-                const base64Data = (e.target?.result as string).split(',')[1];
-                const analysisResult = await analyzeImage(base64Data, file.type, "Describe this image in detail. What are the key elements and what context can be inferred from it?");
-                const content = `### Analysis of image: ${file.name}\n\n${analysisResult}`;
-                handleProcessingComplete(content);
+                try {
+                    const base64Data = (e.target?.result as string).split(',')[1];
+                    const analysisResult = await analyzeImage(base64Data, file.type, "Describe this image in detail. What are the key elements and what context can be inferred from it?");
+                    const content = `### Analysis of image: ${file.name}\n\n${analysisResult}`;
+                    handleProcessingComplete(content);
+                } catch (error: any) {
+                     console.error("Image analysis failed:", error);
+                    // FIX: Updated error handling for API key
+                    if (error.message.includes("API key")) {
+                         alert("API key not configured. Please ensure your API_KEY environment variable is set.");
+                    }
+                    setUploadedFiles(prev => prev.map(f => f.id === upload.id ? { ...f, status: 'error', progress: 0 } : f));
+                }
             };
             reader.readAsDataURL(file);
         } else if (file.type === 'text/plain' || file.type === 'text/markdown') {
@@ -410,12 +420,17 @@ const UploadPage: React.FC<UploadPageProps> = ({ onDone, initialText }) => {
                     setPastedText(prev => prev + chunk);
                 }
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Streaming search failed:", error);
-             setPastedText(prev => {
-                const separator = prev.trim() ? '\n\n---\n\n' : '';
-                return prev + separator + "Sorry, an error occurred while searching for materials.";
-            });
+            // FIX: Updated error handling for API key
+            if (error.message.includes("API key")) {
+                alert("API key not configured. Please ensure your API_KEY environment variable is set.");
+            } else {
+                 setPastedText(prev => {
+                    const separator = prev.trim() ? '\n\n---\n\n' : '';
+                    return prev + separator + "Sorry, an error occurred while searching for materials.";
+                });
+            }
         } finally {
             setIsSearching(false);
             setIsMarkdownMode(true);
@@ -465,9 +480,15 @@ const UploadPage: React.FC<UploadPageProps> = ({ onDone, initialText }) => {
             for await (const chunk of stream) {
                 setPastedText(prev => prev + chunk);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error refining text:", error);
-            setPastedText("Sorry, I couldn't refine the text at the moment.");
+            // FIX: Updated error handling for API key
+            if (error.message.includes("API key")) {
+                alert("API key not configured. Please ensure your API_KEY environment variable is set.");
+                setPastedText(originalText);
+            } else {
+                setPastedText("Sorry, I couldn't refine the text at the moment.");
+            }
         } finally {
             setIsRefining(false);
             setIsMarkdownMode(true);
@@ -485,8 +506,12 @@ const UploadPage: React.FC<UploadPageProps> = ({ onDone, initialText }) => {
                     setShowSuggestions(true);
                 }
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to suggest extended topics:", error);
+            // FIX: Updated error handling for API key
+            if (error.message.includes("API key")) {
+                alert("API key not configured. Please ensure your API_KEY environment variable is set.");
+            }
         } finally {
             setIsSuggestingTopics(false);
         }
@@ -499,8 +524,12 @@ const UploadPage: React.FC<UploadPageProps> = ({ onDone, initialText }) => {
         try {
             const refinedQuery = await refineUserPrompt(searchQuery);
             setSearchQuery(refinedQuery);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error refining search query:", error);
+            // FIX: Updated error handling for API key
+             if (error.message.includes("API key")) {
+                alert("API key not configured. Please ensure your API_KEY environment variable is set.");
+            }
         } finally {
             setIsSearchRefining(false);
         }
@@ -529,57 +558,70 @@ const UploadPage: React.FC<UploadPageProps> = ({ onDone, initialText }) => {
         setIsRecording(true);
         let currentInputTranscription = '';
 
-        sessionPromiseRef.current = connectLive({
-            onopen: async () => {
-                try {
-                    audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
-                    mediaStreamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    const source = audioContextRef.current.createMediaStreamSource(mediaStreamRef.current);
-                    scriptProcessorRef.current = audioContextRef.current.createScriptProcessor(4096, 1, 1);
-                    scriptProcessorRef.current.onaudioprocess = (audioProcessingEvent) => {
-                        const inputData = audioProcessingEvent.inputBuffer.getChannelData(0);
-                        const pcmBlob = createPcmBlob(inputData);
-                        if (sessionPromiseRef.current) {
-                           sessionPromiseRef.current.then((session) => {
-                                session.sendRealtimeInput({ media: pcmBlob });
-                            });
+        try {
+            // FIX: Pass correct config to connectLive for transcription
+            const liveConfig: LiveConfig = { inputAudioTranscription: {} };
+            sessionPromiseRef.current = connectLive({
+                onopen: async () => {
+                    try {
+                        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
+                        mediaStreamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        const source = audioContextRef.current.createMediaStreamSource(mediaStreamRef.current);
+                        scriptProcessorRef.current = audioContextRef.current.createScriptProcessor(4096, 1, 1);
+                        scriptProcessorRef.current.onaudioprocess = (audioProcessingEvent) => {
+                            const inputData = audioProcessingEvent.inputBuffer.getChannelData(0);
+                            const pcmBlob = createPcmBlob(inputData);
+                            if (sessionPromiseRef.current) {
+                               sessionPromiseRef.current.then((session) => {
+                                    session.sendRealtimeInput({ media: pcmBlob });
+                                });
+                            }
+                        };
+                        source.connect(scriptProcessorRef.current);
+                        scriptProcessorRef.current.connect(audioContextRef.current.destination);
+                    } catch (err) {
+                        console.error('Error getting user media:', err);
+                        let errorMessage = "I couldn't access your microphone. Please check your browser settings and hardware.";
+                        if (err instanceof DOMException) {
+                            if (err.name === 'NotFoundError') {
+                                errorMessage = "No microphone found. Please connect a microphone and grant permission to use it.";
+                            } else if (err.name === 'NotAllowedError') {
+                                errorMessage = "Microphone access denied. Please allow microphone access in your browser's settings for this site.";
+                            }
                         }
-                    };
-                    source.connect(scriptProcessorRef.current);
-                    scriptProcessorRef.current.connect(audioContextRef.current.destination);
-                } catch (err) {
-                    console.error('Error getting user media:', err);
-                    let errorMessage = "I couldn't access your microphone. Please check your browser settings and hardware.";
-                    if (err instanceof DOMException) {
-                        if (err.name === 'NotFoundError') {
-                            errorMessage = "No microphone found. Please connect a microphone and grant permission to use it.";
-                        } else if (err.name === 'NotAllowedError') {
-                            errorMessage = "Microphone access denied. Please allow microphone access in your browser's settings for this site.";
-                        }
+                        alert(errorMessage);
+                        stopRecording();
                     }
-                    alert(errorMessage);
+                },
+                onmessage: async (message: LiveServerMessage) => {
+                    if (message.serverContent?.inputTranscription) {
+                        const text = message.serverContent.inputTranscription.text;
+                        currentInputTranscription += text;
+                        setSearchQuery(currentInputTranscription);
+                    }
+                    if (message.serverContent?.turnComplete) {
+                        stopRecording();
+                    }
+                },
+                onerror: (e) => {
+                    console.error('Live session error:', e);
+                    alert("There was a connection error with the voice service. Please try again.");
                     stopRecording();
-                }
-            },
-            onmessage: async (message: LiveServerMessage) => {
-                if (message.serverContent?.inputTranscription) {
-                    const text = message.serverContent.inputTranscription.text;
-                    currentInputTranscription += text;
-                    setSearchQuery(currentInputTranscription);
-                }
-                if (message.serverContent?.turnComplete) {
-                    stopRecording();
-                }
-            },
-            onerror: (e) => {
-                console.error('Live session error:', e);
+                },
+                onclose: () => {
+                    // Handled by stopRecording
+                },
+            }, liveConfig);
+        } catch (error: any) {
+            console.error('Live session error:', error);
+            // FIX: Updated error handling for API key
+            if (error.message.includes("API key")) {
+                alert("API key not configured. Please ensure your API_KEY environment variable is set.");
+            } else {
                 alert("There was a connection error with the voice service. Please try again.");
-                stopRecording();
-            },
-            onclose: () => {
-                // Handled by stopRecording
-            },
-        });
+            }
+            stopRecording();
+        }
     }, [stopRecording]);
     
     const toggleRecording = () => {
@@ -729,7 +771,7 @@ const UploadPage: React.FC<UploadPageProps> = ({ onDone, initialText }) => {
                         <button className="flex-1 rounded-full px-4 py-2 text-sm font-bold leading-normal text-[#6b7280] cursor-not-allowed">Reflection Mode</button>
                     </div>
                     <div className="flex items-center gap-9">
-                        <a className="text-[#6b7280] text-sm font-medium leading-normal cursor-not-allowed" href="#">Upload material</a>
+                        <span className="text-white text-sm font-medium leading-normal">API Key Loaded</span>
                         <a className="text-white text-sm font-medium leading-normal" href="#">Help</a>
                     </div>
                     <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" style={{ backgroundImage: `url("https://picsum.photos/40/40")` }}></div>

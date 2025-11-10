@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import UploadPage from './components/UploadPage';
 import MainPage from './components/MainPage';
+import ApiKeyModal from './components/ApiKeyModal';
 import { Page, ChatMessage, UploadFile } from './types';
 
 const App: React.FC = () => {
@@ -26,11 +27,20 @@ const App: React.FC = () => {
         setInitialText(currentContent || '');
         setChatHistory([]);
     }, []);
-
+    
     return (
         <div className="relative flex h-auto min-h-screen w-full flex-col bg-[#111722] dark group/design-root overflow-x-hidden font-lexend">
+            {/* FIX: API key is now handled by environment variables, so the modal is no longer needed. */}
+            <ApiKeyModal 
+                onKeySubmit={() => {}} 
+                onClose={() => {}} 
+            />
+            
             {currentPage === 'upload' ? (
-                <UploadPage onDone={handleStartLearningSession} initialText={initialText} />
+                <UploadPage 
+                    onDone={handleStartLearningSession} 
+                    initialText={initialText}
+                />
             ) : (
                 <MainPage 
                     initialChatHistory={chatHistory} 

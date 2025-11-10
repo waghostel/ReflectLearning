@@ -1,8 +1,10 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { ChatMessage, OutlineItem, ReflectionMemory } from '../types';
-import { generateImage, connectLive, refineTutorPrompt, getTutorResponse, generateParagraphTitle, rewriteChapterStream, rewriteQnAStream, generateChapterTitle, startReflection, getReflectionResponse } from '../services/geminiService';
+// FIX: Update import to include LiveConfig type and Modality enum
+import { generateImage, connectLive, refineTutorPrompt, getTutorResponse, generateParagraphTitle, rewriteChapterStream, rewriteQnAStream, generateChapterTitle, startReflection, getReflectionResponse, LiveConfig } from '../services/geminiService';
 import { LogoIcon } from './Icons';
-import { LiveServerMessage, Blob } from '@google/genai';
+// FIX: Import Modality enum
+import { LiveServerMessage, Blob, Modality } from '@google/genai';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -432,9 +434,14 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
                 const responseText = await getTutorResponse(text, currentChapterContent, [...messages, newUserMessage], isSearchEnabled);
                 setMessages(prev => [...prev, { id: crypto.randomUUID(), sender: 'ai', text: responseText }]);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            setMessages(prev => [...prev, { id: crypto.randomUUID(), sender: 'ai', text: 'Sorry, something went wrong.' }]);
+            // FIX: Updated error handling for API key
+            if (error.message.includes("API key")) {
+                setMessages(prev => [...prev, { id: crypto.randomUUID(), sender: 'ai', text: 'API key not configured. Please ensure your API_KEY environment variable is set.' }]);
+            } else {
+                setMessages(prev => [...prev, { id: crypto.randomUUID(), sender: 'ai', text: 'Sorry, something went wrong.' }]);
+            }
         } finally {
             setIsLoading(false);
         }
@@ -518,9 +525,14 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
                     setReflectionState('active');
                 }
     
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Error during reflection:", error);
-                 setMessages(prev => [...prev, { id: crypto.randomUUID(), sender: 'ai', text: "Sorry, I had a moment of confusion. Let's try that again." }]);
+                 // FIX: Updated error handling for API key
+                 if (error.message.includes("API key")) {
+                    setMessages(prev => [...prev, { id: crypto.randomUUID(), sender: 'ai', text: "API key not configured. Please ensure your API_KEY environment variable is set." }]);
+                } else {
+                    setMessages(prev => [...prev, { id: crypto.randomUUID(), sender: 'ai', text: "Sorry, I had a moment of confusion. Let's try that again." }]);
+                }
             } finally {
                 setIsReflecting(false);
             }
@@ -576,7 +588,7 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
                 }).join('');
             };
             const textContent = getNodeText(node).trim();
-            const mcqMatch = textContent.match(/^([A-Z])\)\s*(.*)/);
+            const mcqMatch = textContent.match(/^(\d+)\)\s*(.*)/);
             
             const lastAiMessage = [...messages].reverse().find(m => m.sender === 'ai');
 
@@ -637,8 +649,12 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
             const currentChapterContent = sections[currentSectionIndex]?.content || "";
             const refinedPrompt = await refineTutorPrompt(userInput, currentChapterContent);
             setUserInput(refinedPrompt);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error refining prompt:", error);
+            // FIX: Updated error handling for API key
+            if (error.message.includes("API key")) {
+                alert("API key not configured. Please ensure your API_KEY environment variable is set.");
+            }
         } finally {
             setIsRefining(false);
         }
@@ -713,8 +729,12 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
                 finalContent += chunk;
                 setSections(prev => prev.map((s, i) => i === index ? { ...s, content: finalContent } : s));
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to rewrite chapter:", error);
+            // FIX: Updated error handling for API key
+            if (error.message.includes("API key")) {
+                alert("API key not configured. Please ensure your API_KEY environment variable is set.");
+            }
             setSections(prev => prev.map((s, i) => i === index ? { ...s, content: originalChapterContent } : s));
         } finally {
             setRewritingChapterIndex(null);
@@ -750,8 +770,12 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
             const finalFullContent = mainContentPart + '\n\n---\n\n' + finalQnAContent;
             setSections(prev => prev.map((s, i) => i === index ? { ...s, content: finalFullContent } : s));
 
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to rewrite Q&A:", error);
+            // FIX: Updated error handling for API key
+            if (error.message.includes("API key")) {
+                alert("API key not configured. Please ensure your API_KEY environment variable is set.");
+            }
             setSections(prev => prev.map((s, i) => i === index ? { ...s, content: originalChapterContent } : s));
         } finally {
             setRewritingQnAChapterIndex(null);
@@ -775,23 +799,30 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
         const paragraphText = messageToAppend.text;
         const originalChapterContent = sections[currentSectionIndex].content;
         
-        const paragraphTitle = await generateParagraphTitle(paragraphText);
-        const newParagraphMarkdown = `### ${paragraphTitle}\n\n${paragraphText}`;
-    
-        let updatedChapterContent;
-        const qaMarker = '### Q&A';
-        const qaSectionStartIndex = originalChapterContent.indexOf(qaMarker);
-    
-        if (qaSectionStartIndex !== -1) {
-            const contentBeforeQA = originalChapterContent.substring(0, qaSectionStartIndex).trim();
-            const qaSectionContent = originalChapterContent.substring(qaSectionStartIndex);
-            updatedChapterContent = `${contentBeforeQA}\n\n---\n\n${newParagraphMarkdown}\n\n${qaSectionContent}`;
-        } else {
-            updatedChapterContent = `${originalChapterContent}\n\n---\n\n${newParagraphMarkdown}`;
+        try {
+            const paragraphTitle = await generateParagraphTitle(paragraphText);
+            const newParagraphMarkdown = `### ${paragraphTitle}\n\n${paragraphText}`;
+        
+            let updatedChapterContent;
+            const qaMarker = '### Q&A';
+            const qaSectionStartIndex = originalChapterContent.indexOf(qaMarker);
+        
+            if (qaSectionStartIndex !== -1) {
+                const contentBeforeQA = originalChapterContent.substring(0, qaSectionStartIndex).trim();
+                const qaSectionContent = originalChapterContent.substring(qaSectionStartIndex);
+                updatedChapterContent = `${contentBeforeQA}\n\n---\n\n${newParagraphMarkdown}\n\n${qaSectionContent}`;
+            } else {
+                updatedChapterContent = `${originalChapterContent}\n\n---\n\n${newParagraphMarkdown}`;
+            }
+        
+            setSections(prev => prev.map((s, i) => i === currentSectionIndex ? { ...s, content: updatedChapterContent } : s));
+        } catch (error: any) {
+             console.error("Failed to generate title:", error);
+            // FIX: Updated error handling for API key
+            if (error.message.includes("API key")) {
+                alert("API key not configured. Please ensure your API_KEY environment variable is set.");
+            }
         }
-    
-        setSections(prev => prev.map((s, i) => i === currentSectionIndex ? { ...s, content: updatedChapterContent } : s));
-
     }, [chatContextMenu.messageIndex, messages, sections, currentSectionIndex]);
 
     const handleCreateChapter = useCallback(async () => {
@@ -802,7 +833,18 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
         if (!messageToUse || !messageToUse.text.trim()) return;
     
         const chapterText = messageToUse.text;
-        const baseTitle = await generateChapterTitle(chapterText);
+        let baseTitle;
+
+        try {
+            baseTitle = await generateChapterTitle(chapterText);
+        } catch(error: any) {
+            console.error("Failed to generate title:", error);
+            // FIX: Updated error handling for API key
+            if (error.message.includes("API key")) {
+               alert("API key not configured. Please ensure your API_KEY environment variable is set.");
+            }
+            return;
+        }
         
         let insertIndex = sections.findIndex(s => s.type === 'conclusion' || s.type === 'sources');
         if (insertIndex === -1) insertIndex = sections.length;
@@ -946,84 +988,101 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
         let currentInputTranscription = '';
         let currentOutputTranscription = '';
 
-        sessionPromiseRef.current = connectLive({
-            onopen: async () => {
-                try {
-                    audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
-                    mediaStreamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    const source = audioContextRef.current.createMediaStreamSource(mediaStreamRef.current);
-                    scriptProcessorRef.current = audioContextRef.current.createScriptProcessor(4096, 1, 1);
-                    scriptProcessorRef.current.onaudioprocess = (audioProcessingEvent) => {
-                        const inputData = audioProcessingEvent.inputBuffer.getChannelData(0);
-                        const pcmBlob = createPcmBlob(inputData);
-                        if (sessionPromiseRef.current) {
-                           sessionPromiseRef.current.then((session) => {
-                                session.sendRealtimeInput({ media: pcmBlob });
-                            });
+        try {
+            // FIX: Pass correct config to connectLive for conversation
+            const liveConfig: LiveConfig = {
+                responseModalities: [Modality.AUDIO],
+                inputAudioTranscription: {},
+                outputAudioTranscription: {},
+            };
+            sessionPromiseRef.current = connectLive({
+                onopen: async () => {
+                    try {
+                        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
+                        mediaStreamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        const source = audioContextRef.current.createMediaStreamSource(mediaStreamRef.current);
+                        scriptProcessorRef.current = audioContextRef.current.createScriptProcessor(4096, 1, 1);
+                        scriptProcessorRef.current.onaudioprocess = (audioProcessingEvent) => {
+                            const inputData = audioProcessingEvent.inputBuffer.getChannelData(0);
+                            const pcmBlob = createPcmBlob(inputData);
+                            if (sessionPromiseRef.current) {
+                               sessionPromiseRef.current.then((session) => {
+                                    session.sendRealtimeInput({ media: pcmBlob });
+                                });
+                            }
+                        };
+                        source.connect(scriptProcessorRef.current);
+                        scriptProcessorRef.current.connect(audioContextRef.current.destination);
+                    } catch (err) {
+                        console.error('Error getting user media:', err);
+                        let errorMessage = "I couldn't access your microphone. Please check your browser settings and hardware.";
+                        if (err instanceof DOMException) {
+                            if (err.name === 'NotFoundError') {
+                                errorMessage = "No microphone found. Please connect a microphone and grant permission to use it.";
+                            } else if (err.name === 'NotAllowedError') {
+                                errorMessage = "Microphone access denied. Please allow microphone access in your browser's settings for this site.";
+                            }
                         }
-                    };
-                    source.connect(scriptProcessorRef.current);
-                    scriptProcessorRef.current.connect(audioContextRef.current.destination);
-                } catch (err) {
-                    console.error('Error getting user media:', err);
-                    let errorMessage = "I couldn't access your microphone. Please check your browser settings and hardware.";
-                    if (err instanceof DOMException) {
-                        if (err.name === 'NotFoundError') {
-                            errorMessage = "No microphone found. Please connect a microphone and grant permission to use it.";
-                        } else if (err.name === 'NotAllowedError') {
-                            errorMessage = "Microphone access denied. Please allow microphone access in your browser's settings for this site.";
-                        }
+                        setMessages(prev => [...prev, { id: crypto.randomUUID(), sender: 'ai', text: errorMessage }]);
+                        stopRecording();
                     }
-                    setMessages(prev => [...prev, { id: crypto.randomUUID(), sender: 'ai', text: errorMessage }]);
+                },
+                onmessage: async (message: LiveServerMessage) => {
+                    const base64Audio = message.serverContent?.modelTurn?.parts[0]?.inlineData?.data;
+                    if (base64Audio) {
+                        nextStartTime = Math.max(nextStartTime, outputAudioContext.currentTime);
+                        const audioBuffer = await decodeAudioData(decode(base64Audio), outputAudioContext, 24000, 1);
+                        const source = outputAudioContext.createBufferSource();
+                        source.buffer = audioBuffer;
+                        source.connect(outputAudioContext.destination);
+                        source.addEventListener('ended', () => sources.delete(source));
+                        source.start(nextStartTime);
+                        nextStartTime += audioBuffer.duration;
+                        sources.add(source);
+                    }
+                    
+                    if (message.serverContent?.interrupted) {
+                        for (const source of sources.values()) source.stop();
+                        sources.clear();
+                        nextStartTime = 0;
+                    }
+    
+                    if (message.serverContent?.inputTranscription) {
+                        currentInputTranscription += message.serverContent.inputTranscription.text;
+                    }
+                    if (message.serverContent?.outputTranscription) {
+                        currentOutputTranscription += message.serverContent.outputTranscription.text;
+                    }
+                    if (message.serverContent?.turnComplete) {
+                        if(currentInputTranscription.trim()) {
+                            setMessages(prev => [...prev, { id: crypto.randomUUID(), sender: 'user', text: currentInputTranscription }]);
+                        }
+                        if(currentOutputTranscription.trim()) {
+                            setMessages(prev => [...prev, { id: crypto.randomUUID(), sender: 'ai', text: currentOutputTranscription }]);
+                        }
+                        currentInputTranscription = '';
+                        currentOutputTranscription = '';
+                    }
+                },
+                onerror: (e) => {
+                    console.error('Live session error:', e);
+                    setMessages(prev => [...prev, {id: crypto.randomUUID(), sender: 'ai', text: "There was a connection error. Please try again."}]);
                     stopRecording();
-                }
-            },
-            onmessage: async (message: LiveServerMessage) => {
-                const base64Audio = message.serverContent?.modelTurn?.parts[0]?.inlineData?.data;
-                if (base64Audio) {
-                    nextStartTime = Math.max(nextStartTime, outputAudioContext.currentTime);
-                    const audioBuffer = await decodeAudioData(decode(base64Audio), outputAudioContext, 24000, 1);
-                    const source = outputAudioContext.createBufferSource();
-                    source.buffer = audioBuffer;
-                    source.connect(outputAudioContext.destination);
-                    source.addEventListener('ended', () => sources.delete(source));
-                    source.start(nextStartTime);
-                    nextStartTime += audioBuffer.duration;
-                    sources.add(source);
-                }
-                
-                if (message.serverContent?.interrupted) {
-                    for (const source of sources.values()) source.stop();
-                    sources.clear();
-                    nextStartTime = 0;
-                }
-
-                if (message.serverContent?.inputTranscription) {
-                    currentInputTranscription += message.serverContent.inputTranscription.text;
-                }
-                if (message.serverContent?.outputTranscription) {
-                    currentOutputTranscription += message.serverContent.outputTranscription.text;
-                }
-                if (message.serverContent?.turnComplete) {
-                    if(currentInputTranscription.trim()) {
-                        setMessages(prev => [...prev, { id: crypto.randomUUID(), sender: 'user', text: currentInputTranscription }]);
-                    }
-                    if(currentOutputTranscription.trim()) {
-                        setMessages(prev => [...prev, { id: crypto.randomUUID(), sender: 'ai', text: currentOutputTranscription }]);
-                    }
-                    currentInputTranscription = '';
-                    currentOutputTranscription = '';
-                }
-            },
-            onerror: (e) => {
-                console.error('Live session error:', e);
-                setMessages(prev => [...prev, {id: crypto.randomUUID(), sender: 'ai', text: "There was a connection error. Please try again."}]);
-                stopRecording();
-            },
-            onclose: () => {
-                // Handled by stopRecording
-            },
-        });
+                },
+                onclose: () => {
+                    // Handled by stopRecording
+                },
+            }, liveConfig);
+        } catch(error: any) {
+            console.error('Live session error:', error);
+            // FIX: Updated error handling for API key
+            if (error.message.includes("API key")) {
+                setMessages(prev => [...prev, { id: crypto.randomUUID(), sender: 'ai', text: 'API key not configured. Please ensure your API_KEY environment variable is set.' }]);
+            } else {
+                 setMessages(prev => [...prev, {id: crypto.randomUUID(), sender: 'ai', text: "There was a connection error. Please try again."}]);
+            }
+            stopRecording();
+        }
     }, [stopRecording]);
 
     const toggleRecording = () => {
@@ -1094,9 +1153,14 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
                         </div>
                     </div>
                 );
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Failed to start reflection session:", error);
-                setMessages([{ id: crypto.randomUUID(), sender: 'ai', text: "I'm having a bit of trouble starting our reflection. Please try again in a moment." }]);
+                // FIX: Updated error handling for API key
+                if (error.message.includes("API key")) {
+                    setMessages([{ id: crypto.randomUUID(), sender: 'ai', text: "API key not configured. Please ensure your API_KEY environment variable is set." }]);
+                } else {
+                    setMessages([{ id: crypto.randomUUID(), sender: 'ai', text: "I'm having a bit of trouble starting our reflection. Please try again in a moment." }]);
+                }
             } finally {
                 setIsReflecting(false);
             }
@@ -1140,6 +1204,7 @@ const MainPage: React.FC<MainPageProps> = ({ initialChatHistory, onNavigateToUpl
                         <button onClick={handleNavigateBackToUpload} className="rounded-full bg-[#232f48] px-4 py-2 text-sm font-bold leading-normal text-white hover:bg-[#34405a]">Upload New Material</button>
                     </div>
                     <div className="flex items-center gap-9">
+                        <span className="text-white text-sm font-medium leading-normal">API Key Loaded</span>
                         <a className="text-white text-sm font-medium leading-normal" href="#">Help</a>
                     </div>
                     <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" style={{ backgroundImage: `url('https://picsum.photos/seed/user/40/40')` }}></div>
