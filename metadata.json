@@ -1,0 +1,7 @@
+{
+  "name": "ReflectLearning AI Tutor",
+  "description": "An interactive learning application that uses AI to provide a personalized educational experience. Users can upload learning materials, engage in guided scenarios, and chat with an AI tutor for real-time feedback and assistance.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
