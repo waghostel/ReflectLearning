@@ -144,24 +144,32 @@ Example output:
 };
 
 /**
- * Generates an image based on a text prompt.
+ * Generates an image based on a text prompt using the cost-effective gemini-2.5-flash-image model.
  */
 export const generateImage = async (prompt: string): Promise<string | null> => {
-    const response = await ai.models.generateImages({
-        model: 'imagen-4.0-generate-001',
-        prompt: prompt,
-        config: {
-            numberOfImages: 1,
-            outputMimeType: 'image/jpeg',
-            aspectRatio: '16:9',
-        },
-    });
+    try {
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash-image',
+            contents: {
+                parts: [{ text: prompt }],
+            },
+            config: {
+                responseModalities: [Modality.IMAGE],
+            },
+        });
 
-    if (response.generatedImages && response.generatedImages.length > 0) {
-        const base64ImageBytes = response.generatedImages[0].image.imageBytes;
-        return `data:image/jpeg;base64,${base64ImageBytes}`;
+        for (const part of response.candidates[0].content.parts) {
+            if (part.inlineData) {
+                const base64ImageBytes: string = part.inlineData.data;
+                const mimeType = part.inlineData.mimeType || 'image/png';
+                return `data:${mimeType};base64,${base64ImageBytes}`;
+            }
+        }
+        return null;
+    } catch (error) {
+        console.error("Error generating image with gemini-2.5-flash-image:", error);
+        return null;
     }
-    return null;
 };
 
 /**
@@ -463,7 +471,7 @@ Based on the provided context (chapter, memory, history), analyze the user's lat
 - **\`nextQuestion\` (Slide):** A brand new question slide on a different topic from the chapter.
 - **Follow General Slide Formatting Rules:**
     - Format as a rich Markdown "slide" with headings.
-    - **Interactivity (Multiple Choice):** If suitable, provide 3-4 options in the slide's Markdown (formatted as 'A)', 'B)', etc.) and return them in the 'choices' JSON array.
+    - **Interactivity (Multiple Choice):** If suitable, provide 3-4 options in the slide's Markdown (formatted as '1)', '2)', etc.) and return them in the 'choices' JSON array.
     - **Visuals:** If a slide feels sparse or a concept is complex, generate a descriptive 'imagePrompt'.
     - **Highlighting:** Use bold (\`**text**\`) for keywords (yellow) and italics (\`*text*\`) for emphasis (red).
 
