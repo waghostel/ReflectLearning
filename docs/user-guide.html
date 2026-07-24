@@ -1,0 +1,2107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Comprehensive user guide for ReflectLearning AI Tutor - Learn how to upload materials, interact with AI, and create personalized learning experiences">
+  <title>ReflectLearning User Guide - Documentation</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Lexend and Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Material Symbols -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  
+  <!-- Mermaid.js for diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  
+  <style>
+    /* Base Styles - Mobile First */
+    body {
+      font-family: 'Lexend', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    
+    .font-inter {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .material-symbols-outlined {
+      font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24;
+    }
+    
+    /* Smooth scrolling for the entire page */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Mobile Styles (< 768px) - Default */
+    
+    /* Ensure readable text on mobile */
+    body {
+      font-size: 14px;
+    }
+    
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+    
+    h2 {
+      font-size: 1.75rem;
+      font-weight: 700;
+    }
+    
+    h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    
+    h4 {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    p, li {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* Mobile header adjustments */
+    header nav {
+      padding: 1rem;
+    }
+    
+    header h1 {
+      font-size: 1.125rem;
+    }
+    
+    header a span:last-child {
+      display: none; /* Hide "Back to App" text on mobile, show only icon */
+    }
+
+    /* Mobile hero section */
+    .hero-title {
+      font-size: 2rem !important;
+    }
+
+    /* Collapsible Table of Contents on Mobile */
+    #toc-container {
+      position: relative;
+    }
+    
+    #toc-toggle {
+      display: block;
+      width: 100%;
+      padding: 1rem;
+      background: #232f48;
+      color: #135bec;
+      border: none;
+      border-radius: 0.5rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      margin-bottom: 0.5rem;
+    }
+    
+    #toc-toggle:hover {
+      background: #2a3a5a;
+    }
+    
+    #toc-toggle::after {
+      content: '▼';
+      float: right;
+      transition: transform 0.3s ease;
+    }
+    
+    #toc-toggle.active::after {
+      transform: rotate(180deg);
+    }
+    
+    #toc-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    
+    #toc-content.active {
+      max-height: 500px;
+    }
+
+    /* Stack content vertically on mobile */
+    main {
+      padding: 1rem;
+    }
+    
+    section {
+      margin-bottom: 2rem;
+    }
+
+    /* Mobile-friendly feature cards */
+    .feature-card {
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Responsive Mermaid diagrams */
+    .mermaid {
+      overflow-x: auto;
+      max-width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .mermaid svg {
+      max-width: 100%;
+      height: auto;
+      margin: 0 auto;
+    }
+
+    /* Mobile code blocks */
+    code {
+      font-size: 0.875rem;
+      word-break: break-word;
+    }
+
+    /* Mobile lists */
+    ol, ul {
+      padding-left: 1.5rem;
+    }
+
+    /* Tablet Styles (768px - 1023px) */
+    @media (min-width: 768px) {
+      body {
+        font-size: 16px;
+      }
+      
+      p, li {
+        font-size: 16px;
+      }
+      
+      h1 {
+        font-size: 2.5rem;
+      }
+      
+      h2 {
+        font-size: 2rem;
+      }
+      
+      h3 {
+        font-size: 1.75rem;
+      }
+      
+      h4 {
+        font-size: 1.5rem;
+      }
+
+      /* Show full header text on tablet */
+      header a span:last-child {
+        display: inline;
+      }
+      
+      header h1 {
+        font-size: 1.25rem;
+      }
+
+      /* Tablet hero section */
+      .hero-title {
+        font-size: 3rem !important;
+      }
+
+      /* Hide mobile TOC toggle on tablet */
+      #toc-toggle {
+        display: none;
+      }
+      
+      #toc-content {
+        max-height: none;
+        overflow: visible;
+      }
+
+      main {
+        padding: 2rem;
+      }
+
+      .feature-card {
+        padding: 1.5rem;
+      }
+    }
+
+    /* Desktop Styles (≥ 1024px) */
+    @media (min-width: 1024px) {
+      body {
+        font-size: 18px;
+      }
+      
+      p, li {
+        font-size: 18px;
+      }
+
+      /* Desktop layout with sidebar TOC */
+      .content-wrapper {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 3rem;
+        align-items: start;
+      }
+      
+      #toc-sidebar {
+        position: sticky;
+        top: 100px;
+        max-height: calc(100vh - 120px);
+        overflow-y: auto;
+      }
+
+      /* Scrollbar styling for TOC sidebar */
+      #toc-sidebar::-webkit-scrollbar {
+        width: 6px;
+      }
+      
+      #toc-sidebar::-webkit-scrollbar-track {
+        background: #111722;
+      }
+      
+      #toc-sidebar::-webkit-scrollbar-thumb {
+        background: #135bec;
+        border-radius: 3px;
+      }
+
+      main {
+        padding: 3rem;
+      }
+
+      .hero-title {
+        font-size: 3.5rem !important;
+      }
+
+      .feature-card {
+        padding: 2rem;
+      }
+
+      /* Better spacing for desktop */
+      section {
+        margin-bottom: 4rem;
+      }
+    }
+
+    /* Ensure proper font weights across all breakpoints */
+    h1, h2 {
+      font-weight: 700;
+    }
+    
+    h3 {
+      font-weight: 600;
+    }
+    
+    h4 {
+      font-weight: 600;
+    }
+    
+    .font-semibold {
+      font-weight: 600;
+    }
+    
+    .font-bold {
+      font-weight: 700;
+    }
+
+    /* Color palette consistency */
+    :root {
+      --bg-primary: #111722;
+      --bg-secondary: #232f48;
+      --accent: #135bec;
+      --text-primary: #ffffff;
+      --text-secondary: #92a4c9;
+    }
+
+    /* Ensure touch-friendly targets on mobile */
+    @media (max-width: 767px) {
+      a, button {
+        min-height: 44px;
+        min-width: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      nav a {
+        padding: 0.75rem 1rem;
+      }
+    }
+
+    /* Mermaid diagram responsiveness */
+    @media (max-width: 767px) {
+      .mermaid {
+        font-size: 12px;
+      }
+    }
+    
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .mermaid {
+        font-size: 13px;
+      }
+    }
+    
+    @media (min-width: 1024px) {
+      .mermaid {
+        font-size: 14px;
+      }
+    }
+
+    /* User Mode Toggle Styles */
+    .mode-toggle {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #92a4c9;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+    }
+    
+    .mode-toggle:hover {
+      color: #ffffff;
+    }
+    
+    .mode-toggle.active {
+      background: #135bec;
+      color: #ffffff;
+      font-weight: 600;
+    }
+    
+    .mode-toggle .material-symbols-outlined {
+      font-size: 18px;
+    }
+    
+    /* Responsive toggle on mobile */
+    @media (max-width: 640px) {
+      .mode-toggle {
+        padding: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body class="bg-[#111722] text-white">
+  
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-[#111722] border-b border-[#232f48] shadow-lg">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <!-- Logo matching the app's LogoIcon -->
+        <div class="w-8 h-8 text-[#135bec]">
+          <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+            <path clipRule="evenodd" d="M24 4H6V17.3333V30.6667H24V44H42V30.6667V17.3333H24V4Z" fill="currentColor" fillRule="evenodd"></path>
+          </svg>
+        </div>
+        <h1 class="text-xl font-bold">ReflectLearning</h1>
+      </div>
+      
+      <!-- Center: User Mode Toggle -->
+      <div class="flex items-center space-x-3 bg-[#232f48] rounded-lg p-1 border border-[#135bec]/20">
+        <button id="normalModeBtn" class="mode-toggle active px-4 py-2 rounded-md transition-all duration-200 flex items-center space-x-2">
+          <span class="material-symbols-outlined text-sm">person</span>
+          <span class="hidden sm:inline">Normal User</span>
+        </button>
+        <button id="developerModeBtn" class="mode-toggle px-4 py-2 rounded-md transition-all duration-200 flex items-center space-x-2">
+          <span class="material-symbols-outlined text-sm">code</span>
+          <span class="hidden sm:inline">Developer</span>
+        </button>
+      </div>
+      
+      <a href="../index.html" class="font-inter text-[#135bec] hover:text-white transition-colors duration-200 flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-[#232f48]">
+        <span class="material-symbols-outlined">arrow_back</span>
+        <span class="hidden sm:inline">Back to App</span>
+      </a>
+    </nav>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Hero Section -->
+    <section class="mb-8 lg:mb-12 py-4 lg:py-8">
+      <!-- Title spanning full width -->
+      <h2 class="hero-title text-5xl font-bold mb-6 lg:mb-8 bg-gradient-to-r from-white to-[#92a4c9] bg-clip-text text-transparent">ReflectLearning User Guide</h2>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <!-- Left Column: Description and Stats -->
+        <div>
+          <p class="text-[#92a4c9] leading-relaxed text-lg">
+            Welcome to the ReflectLearning AI Tutor documentation. This comprehensive guide will help you understand how to use all features of the application to create personalized, interactive learning experiences powered by Google's Gemini AI.
+          </p>
+          <p class="text-[#92a4c9] leading-relaxed mt-4 text-lg">
+            Whether you're uploading learning materials, chatting with the AI tutor, or creating custom chapters, this guide provides step-by-step instructions and visual diagrams to help you get the most out of ReflectLearning.
+          </p>
+          <p class="text-[#92a4c9] leading-relaxed mt-4">
+            ReflectLearning transforms traditional learning into an active, engaging experience. By leveraging cutting-edge AI technology, the platform adapts to your learning style, provides instant feedback, and helps you master complex topics through interactive dialogue and reflection.
+          </p>
+          
+          <!-- Quick Stats -->
+          <div class="grid grid-cols-3 gap-4 mt-6 lg:mt-8">
+            <div class="bg-[#232f48] rounded-lg p-4 border border-[#135bec]/20 text-center">
+              <div class="text-2xl lg:text-3xl font-bold text-[#135bec]">8+</div>
+              <div class="text-xs lg:text-sm text-[#92a4c9] mt-1">Features</div>
+            </div>
+            <div class="bg-[#232f48] rounded-lg p-4 border border-[#135bec]/20 text-center">
+              <div class="text-2xl lg:text-3xl font-bold text-[#135bec]">3</div>
+              <div class="text-xs lg:text-sm text-[#92a4c9] mt-1">AI Models</div>
+            </div>
+            <div class="bg-[#232f48] rounded-lg p-4 border border-[#135bec]/20 text-center">
+              <div class="text-2xl lg:text-3xl font-bold text-[#135bec]">5</div>
+              <div class="text-xs lg:text-sm text-[#92a4c9] mt-1">Sections</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right Column: Key Features Highlights -->
+        <div class="bg-[#232f48] rounded-lg p-6 border border-[#135bec]/20">
+          <h3 class="text-xl lg:text-2xl font-bold text-white mb-4">What You'll Learn</h3>
+          <div class="space-y-3">
+            <div class="flex items-start space-x-3">
+              <span class="material-symbols-outlined text-[#135bec] flex-shrink-0 mt-1">check_circle</span>
+              <div>
+                <p class="text-white font-semibold">Upload & Process Materials</p>
+                <p class="text-[#92a4c9] text-sm">Learn how to upload PDFs, documents, images, and URLs to create learning content. The AI automatically extracts and structures information for optimal learning.</p>
+              </div>
+            </div>
+            <div class="flex items-start space-x-3">
+              <span class="material-symbols-outlined text-[#135bec] flex-shrink-0 mt-1">check_circle</span>
+              <div>
+                <p class="text-white font-semibold">Interactive AI Tutoring</p>
+                <p class="text-[#92a4c9] text-sm">Master chat interactions, voice input, and context-aware conversations. Get instant answers and explanations tailored to your current chapter.</p>
+              </div>
+            </div>
+            <div class="flex items-start space-x-3">
+              <span class="material-symbols-outlined text-[#135bec] flex-shrink-0 mt-1">check_circle</span>
+              <div>
+                <p class="text-white font-semibold">Content Management</p>
+                <p class="text-[#92a4c9] text-sm">Edit chapters, rewrite sections, and customize your learning experience. Add new content, regenerate Q&A sections, and organize materials your way.</p>
+              </div>
+            </div>
+            <div class="flex items-start space-x-3">
+              <span class="material-symbols-outlined text-[#135bec] flex-shrink-0 mt-1">check_circle</span>
+              <div>
+                <p class="text-white font-semibold">Technical Insights</p>
+                <p class="text-[#92a4c9] text-sm">Understand the AI models, architecture, and data handling practices. Learn about Gemini AI, Imagen, and real-time audio streaming capabilities.</p>
+              </div>
+            </div>
+            <div class="flex items-start space-x-3">
+              <span class="material-symbols-outlined text-[#135bec] flex-shrink-0 mt-1">check_circle</span>
+              <div>
+                <p class="text-white font-semibold">Troubleshooting & FAQ</p>
+                <p class="text-[#92a4c9] text-sm">Get answers to common questions and solve issues quickly. Find solutions for API setup, file uploads, browser compatibility, and more.</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-6 p-4 bg-[#111722] rounded-lg border border-[#135bec]/20">
+            <p class="text-[#92a4c9] text-sm">
+              <span class="text-[#135bec] font-semibold">💡 Pro Tip:</span> Use the Table of Contents on the left to quickly navigate to any section. All diagrams are interactive and responsive across devices.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Desktop: Grid Layout with Sidebar TOC | Mobile/Tablet: Stacked -->
+    <div class="content-wrapper">
+      
+      <!-- Table of Contents - Sidebar on Desktop, Collapsible on Mobile -->
+      <aside id="toc-sidebar" class="mb-8 lg:mb-0">
+        <div id="toc-container" class="bg-[#232f48] rounded-lg border border-[#135bec]/20">
+          <!-- Mobile Toggle Button -->
+          <button id="toc-toggle" class="lg:hidden" aria-expanded="false" aria-controls="toc-content">
+            Table of Contents
+          </button>
+          
+          <!-- TOC Content -->
+          <div id="toc-content" class="p-4 lg:p-6">
+            <h3 class="text-xl lg:text-2xl font-bold mb-4 lg:mb-6 text-white hidden lg:block">Table of Contents</h3>
+            <nav class="space-y-2 lg:space-y-3">
+              <a href="#getting-started" class="block text-[#92a4c9] hover:text-[#135bec] transition-colors duration-200 py-2 px-3 lg:px-4 rounded hover:bg-[#111722] font-inter text-sm lg:text-base">
+                <span class="font-semibold">1.</span> Getting Started
+              </a>
+              <a href="#upload-page" class="block text-[#92a4c9] hover:text-[#135bec] transition-colors duration-200 py-2 px-3 lg:px-4 rounded hover:bg-[#111722] font-inter text-sm lg:text-base">
+                <span class="font-semibold">2.</span> Upload Page Features
+              </a>
+              <a href="#main-page" class="block text-[#92a4c9] hover:text-[#135bec] transition-colors duration-200 py-2 px-3 lg:px-4 rounded hover:bg-[#111722] font-inter text-sm lg:text-base">
+                <span class="font-semibold">3.</span> Main Page Features
+              </a>
+              <a href="#technical-details" class="block text-[#92a4c9] hover:text-[#135bec] transition-colors duration-200 py-2 px-3 lg:px-4 rounded hover:bg-[#111722] font-inter text-sm lg:text-base">
+                <span class="font-semibold">4.</span> Technical Details
+              </a>
+              <a href="#faq" class="block text-[#92a4c9] hover:text-[#135bec] transition-colors duration-200 py-2 px-3 lg:px-4 rounded hover:bg-[#111722] font-inter text-sm lg:text-base">
+                <span class="font-semibold">5.</span> FAQ
+              </a>
+            </nav>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content Sections -->
+      <section class="space-y-12 lg:space-y-16">
+      
+      <!-- Getting Started Section -->
+      <div id="getting-started" class="scroll-mt-24">
+        <h2 class="text-4xl font-bold mb-6 text-white border-b border-[#232f48] pb-4">Getting Started</h2>
+        
+        <p class="text-[#92a4c9] text-lg leading-relaxed mb-8">
+          ReflectLearning is designed to transform your learning materials into interactive, AI-powered educational experiences. Whether you're a student preparing for exams, a professional learning new skills, or an educator creating study materials, this guide will help you get started quickly and effectively.
+        </p>
+
+        <!-- Prerequisites Section -->
+        <div class="bg-[#232f48] rounded-lg p-6 border border-[#135bec]/20 mb-8">
+          <h3 class="text-2xl font-bold text-white mb-4 flex items-center">
+            <span class="material-symbols-outlined text-[#135bec] mr-2">checklist</span>
+            Prerequisites
+          </h3>
+          <p class="text-[#92a4c9] mb-4">Before you begin, make sure you have the following:</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-[#111722] rounded-lg p-4">
+              <h4 class="text-white font-semibold mb-2 flex items-center">
+                <span class="material-symbols-outlined text-[#135bec] mr-2 text-sm">key</span>
+                Google AI API Key
+              </h4>
+              <p class="text-[#92a4c9] text-sm mb-2">You'll need a valid API key from Google AI Studio to use ReflectLearning.</p>
+              <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-[#135bec] hover:underline text-sm">Get your API key →</a>
+            </div>
+            <div class="bg-[#111722] rounded-lg p-4">
+              <h4 class="text-white font-semibold mb-2 flex items-center">
+                <span class="material-symbols-outlined text-[#135bec] mr-2 text-sm">language</span>
+                Modern Web Browser
+              </h4>
+              <p class="text-[#92a4c9] text-sm">Chrome, Firefox, Safari, or Edge (latest versions recommended for best performance).</p>
+            </div>
+            <div class="bg-[#111722] rounded-lg p-4">
+              <h4 class="text-white font-semibold mb-2 flex items-center">
+                <span class="material-symbols-outlined text-[#135bec] mr-2 text-sm">wifi</span>
+                Internet Connection
+              </h4>
+              <p class="text-[#92a4c9] text-sm">A stable broadband connection is required for real-time AI processing and content streaming.</p>
+            </div>
+            <div class="bg-[#111722] rounded-lg p-4">
+              <h4 class="text-white font-semibold mb-2 flex items-center">
+                <span class="material-symbols-outlined text-[#135bec] mr-2 text-sm">description</span>
+                Learning Materials
+              </h4>
+              <p class="text-[#92a4c9] text-sm">PDFs, documents, images, text, or URLs containing the content you want to learn.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Start Guide -->
+        <div class="mb-8">
+          <h3 class="text-2xl font-bold text-white mb-6 flex items-center">
+            <span class="material-symbols-outlined text-[#135bec] mr-2">rocket_launch</span>
+            Quick Start Guide
+          </h3>
+          <p class="text-[#92a4c9] mb-6">Follow these simple steps to create your first learning experience:</p>
+          
+          <div class="space-y-6">
+            <!-- Step 1 -->
+            <div class="flex gap-4">
+              <div class="flex-shrink-0">
+                <div class="w-12 h-12 bg-[#135bec] rounded-full flex items-center justify-center text-white font-bold text-xl">1</div>
+              </div>
+              <div class="flex-1">
+                <h4 class="text-xl font-semibold text-white mb-2">Set Up Your API Key</h4>
+                <p class="text-[#92a4c9] mb-3">When you first open ReflectLearning, you'll see an API key modal. Paste your Google AI API key and click "Save". Your key is stored securely in your browser's local storage and never sent to external servers.</p>
+                <div class="bg-[#111722] rounded-lg p-4 border-l-4 border-[#135bec]">
+                  <p class="text-[#92a4c9] text-sm">
+                    <strong class="text-white">💡 Tip:</strong> Don't have an API key yet? Visit <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-[#135bec] hover:underline">Google AI Studio</a> to create one for free. The process takes less than a minute!
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="flex gap-4">
+              <div class="flex-shrink-0">
+                <div class="w-12 h-12 bg-[#135bec] rounded-full flex items-center justify-center text-white font-bold text-xl">2</div>
+              </div>
+              <div class="flex-1">
+                <h4 class="text-xl font-semibold text-white mb-2">Upload Your Learning Materials</h4>
+                <p class="text-[#92a4c9] mb-3">On the Upload Page, you have multiple options to provide your learning content:</p>
+                <ul class="list-disc list-inside space-y-2 text-[#92a4c9] ml-4 mb-3">
+                  <li><strong class="text-white">Upload Files:</strong> Drag and drop PDFs, Word documents, PowerPoint presentations, or images</li>
+                  <li><strong class="text-white">Paste Text:</strong> Copy and paste content directly into the editor</li>
+                  <li><strong class="text-white">Voice Input:</strong> Speak your learning topics using the microphone feature</li>
+                  <li><strong class="text-white">Search Topics:</strong> Enter a topic and let AI search the web for relevant information</li>
+                  <li><strong class="text-white">Provide URLs:</strong> Paste links to articles, documentation, or web pages</li>
+                </ul>
+                <div class="bg-[#111722] rounded-lg p-4 border-l-4 border-yellow-500">
+                  <p class="text-[#92a4c9] text-sm">
+                    <strong class="text-white">⚠️ Note:</strong> You can combine multiple input methods! Upload a PDF, paste some notes, and add a URL—the AI will process everything together.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="flex gap-4">
+              <div class="flex-shrink-0">
+                <div class="w-12 h-12 bg-[#135bec] rounded-full flex items-center justify-center text-white font-bold text-xl">3</div>
+              </div>
+              <div class="flex-1">
+                <h4 class="text-xl font-semibold text-white mb-2">Refine Your Content</h4>
+                <p class="text-[#92a4c9] mb-3">Once you've added all your materials, click the <strong class="text-white">"Refine"</strong> button. The AI will:</p>
+                <ul class="list-disc list-inside space-y-2 text-[#92a4c9] ml-4 mb-3">
+                  <li>Analyze and structure your content into logical chapters</li>
+                  <li>Create a comprehensive learning report with clear headings</li>
+                  <li>Generate Q&A sections for each chapter to test your understanding</li>
+                  <li>Format everything in an easy-to-read, organized layout</li>
+                </ul>
+                <p class="text-[#92a4c9]">Watch as your content streams in real-time—you'll see the AI building your personalized learning report right before your eyes!</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="flex gap-4">
+              <div class="flex-shrink-0">
+                <div class="w-12 h-12 bg-[#135bec] rounded-full flex items-center justify-center text-white font-bold text-xl">4</div>
+              </div>
+              <div class="flex-1">
+                <h4 class="text-xl font-semibold text-white mb-2">Start Learning Interactively</h4>
+                <p class="text-[#92a4c9] mb-3">Click <strong class="text-white">"Start Learning"</strong> to enter the Main Page, where the real magic happens:</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                  <div class="bg-[#111722] rounded-lg p-3">
+                    <p class="text-white font-semibold text-sm mb-1">📖 Read Chapters</p>
+                    <p class="text-[#92a4c9] text-sm">Navigate through structured content with a sidebar</p>
+                  </div>
+                  <div class="bg-[#111722] rounded-lg p-3">
+                    <p class="text-white font-semibold text-sm mb-1">💬 Chat with AI Tutor</p>
+                    <p class="text-[#92a4c9] text-sm">Ask questions and get context-aware answers</p>
+                  </div>
+                  <div class="bg-[#111722] rounded-lg p-3">
+                    <p class="text-white font-semibold text-sm mb-1">✏️ Edit Content</p>
+                    <p class="text-[#92a4c9] text-sm">Customize chapters and add your own notes</p>
+                  </div>
+                  <div class="bg-[#111722] rounded-lg p-3">
+                    <p class="text-white font-semibold text-sm mb-1">🎤 Use Voice Features</p>
+                    <p class="text-[#92a4c9] text-sm">Learn hands-free with voice interactions</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Learning Flow Diagram -->
+        <div class="bg-[#232f48] rounded-lg p-6 border border-[#135bec]/20 mb-8">
+          <h3 class="text-2xl font-bold text-white mb-4 flex items-center">
+            <span class="material-symbols-outlined text-[#135bec] mr-2">account_tree</span>
+            Your Learning Journey
+          </h3>
+          <p class="text-[#92a4c9] mb-4">Here's a visual overview of how ReflectLearning works:</p>
+          <div class="bg-[#111722] rounded-lg p-4">
+            <div class="mermaid">
+flowchart LR
+    A[Upload Materials] --> B[AI Refines Content]
+    B --> C[Structured Report]
+    C --> D[Interactive Learning]
+    D --> E{Choose Activity}
+    E -->|Read| F[Navigate Chapters]
+    E -->|Ask| G[Chat with AI Tutor]
+    E -->|Edit| H[Customize Content]
+    E -->|Reflect| I[Active Questioning]
+    F --> J[Master the Material]
+    G --> J
+    H --> J
+    I --> J
+    
+    style A fill:#135bec,stroke:#135bec,color:#fff
+    style J fill:#135bec,stroke:#135bec,color:#fff
+    style B fill:#232f48,stroke:#92a4c9,color:#fff
+    style C fill:#232f48,stroke:#92a4c9,color:#fff
+    style D fill:#232f48,stroke:#92a4c9,color:#fff
+    style E fill:#232f48,stroke:#92a4c9,color:#fff
+    style F fill:#232f48,stroke:#92a4c9,color:#fff
+    style G fill:#232f48,stroke:#92a4c9,color:#fff
+    style H fill:#232f48,stroke:#92a4c9,color:#fff
+    style I fill:#232f48,stroke:#92a4c9,color:#fff
+            </div>
+          </div>
+        </div>
+
+        <!-- Best Practices -->
+        <div class="mb-8">
+          <h3 class="text-2xl font-bold text-white mb-6 flex items-center">
+            <span class="material-symbols-outlined text-[#135bec] mr-2">lightbulb</span>
+            Best Practices for Effective Learning
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-[#232f48] rounded-lg p-5 border border-[#135bec]/20">
+              <h4 class="text-white font-semibold mb-2 flex items-center">
+                <span class="material-symbols-outlined text-[#135bec] mr-2 text-sm">upload_file</span>
+                Quality Input = Quality Output
+              </h4>
+              <p class="text-[#92a4c9] text-sm">Provide clear, well-structured materials. The better your input, the more comprehensive and useful your learning report will be.</p>
+            </div>
+            <div class="bg-[#232f48] rounded-lg p-5 border border-[#135bec]/20">
+              <h4 class="text-white font-semibold mb-2 flex items-center">
+                <span class="material-symbols-outlined text-[#135bec] mr-2 text-sm">chat</span>
+                Ask Questions Actively
+              </h4>
+              <p class="text-[#92a4c9] text-sm">Don't just read—engage! Use the AI tutor chat to ask questions, clarify concepts, and deepen your understanding.</p>
+            </div>
+            <div class="bg-[#232f48] rounded-lg p-5 border border-[#135bec]/20">
+              <h4 class="text-white font-semibold mb-2 flex items-center">
+                <span class="material-symbols-outlined text-[#135bec] mr-2 text-sm">edit_note</span>
+                Personalize Your Content
+              </h4>
+              <p class="text-[#92a4c9] text-sm">Edit chapters to add your own notes, examples, and insights. Making content your own improves retention and understanding.</p>
+            </div>
+            <div class="bg-[#232f48] rounded-lg p-5 border border-[#135bec]/20">
+              <h4 class="text-white font-semibold mb-2 flex items-center">
+                <span class="material-symbols-outlined text-[#135bec] mr-2 text-sm">psychology</span>
+                Use Reflection Mode
+              </h4>
+              <p class="text-[#92a4c9] text-sm">After reading a chapter, try Reflection Mode. The AI will ask probing questions to test and deepen your understanding.</p>
+            </div>
+            <div class="bg-[#232f48] rounded-lg p-5 border border-[#135bec]/20">
+              <h4 class="text-white font-semibold mb-2 flex items-center">
+                <span class="material-symbols-outlined text-[#135bec] mr-2 text-sm">search</span>
+                Enable Web Search
+              </h4>
+              <p class="text-[#92a4c9] text-sm">Toggle "Search Grounding" when you need current information or want to explore topics beyond your uploaded materials.</p>
+            </div>
+            <div class="bg-[#232f48] rounded-lg p-5 border border-[#135bec]/20">
+              <h4 class="text-white font-semibold mb-2 flex items-center">
+                <span class="material-symbols-outlined text-[#135bec] mr-2 text-sm">save</span>
+                Save Important Content
+              </h4>
+              <p class="text-[#92a4c9] text-sm">Remember: content isn't saved between sessions. Use Ctrl+P to print/save as PDF, or copy important sections to external documents.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="bg-gradient-to-r from-[#135bec]/20 to-[#232f48] rounded-lg p-6 border border-[#135bec]/30">
+          <h3 class="text-2xl font-bold text-white mb-4 flex items-center">
+            <span class="material-symbols-outlined text-[#135bec] mr-2">arrow_forward</span>
+            Ready to Begin?
+          </h3>
+          <p class="text-[#92a4c9] mb-4">Now that you understand the basics, explore the detailed feature guides below:</p>
+          <div class="flex flex-wrap gap-3">
+            <a href="#upload-page" class="bg-[#135bec] hover:bg-[#0d4bc4] text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center">
+              <span class="material-symbols-outlined mr-2 text-sm">upload</span>
+              Upload Page Features
+            </a>
+            <a href="#main-page" class="bg-[#232f48] hover:bg-[#2a3a5a] text-white px-4 py-2 rounded-lg transition-colors duration-200 border border-[#135bec]/20 flex items-center">
+              <span class="material-symbols-outlined mr-2 text-sm">school</span>
+              Main Page Features
+            </a>
+            <a href="#technical-details" class="bg-[#232f48] hover:bg-[#2a3a5a] text-white px-4 py-2 rounded-lg transition-colors duration-200 border border-[#135bec]/20 flex items-center">
+              <span class="material-symbols-outlined mr-2 text-sm">settings</span>
+              Technical Details
+            </a>
+            <a href="#faq" class="bg-[#232f48] hover:bg-[#2a3a5a] text-white px-4 py-2 rounded-lg transition-colors duration-200 border border-[#135bec]/20 flex items-center">
+              <span class="material-symbols-outlined mr-2 text-sm">help</span>
+              FAQ
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Upload Page Section -->
+      <div id="upload-page" class="scroll-mt-24">
+        <h2 class="text-4xl font-bold mb-6 text-white border-b border-[#232f48] pb-4">Upload Page Features</h2>
+        <p class="text-[#92a4c9] text-lg leading-relaxed mb-8">
+          The Upload Page is where your learning journey begins. You can provide learning materials in multiple ways: upload files, paste text, use voice input, search for topics, or provide URLs. Once you've added your content, the AI will help you refine it into a structured learning report.
+        </p>
+
+        <!-- File Uploading Feature -->
+        <div id="file-uploading" class="feature-card mb-8 lg:mb-12 bg-[#232f48] rounded-lg border border-[#135bec]/20">
+          <h3 class="text-2xl font-bold mb-4 text-white">📁 File Uploading</h3>
+          <p class="text-[#92a4c9] mb-6">
+            <strong>User Need:</strong> Upload PDF, Word, PowerPoint, or image files to extract learning content automatically.
+          </p>
+          
+          <div class="mb-6">
+            <h4 class="text-lg font-semibold text-white mb-3">How to Upload Files:</h4>
+            <ol class="list-decimal list-inside space-y-2 text-[#92a4c9] ml-4">
+              <li>Click the <span class="text-[#135bec] font-semibold">"Upload Files"</span> button or drag files directly into the drop zone</li>
+              <li>Select one or multiple files from your file picker (supported formats: PDF, DOCX, PPTX, images)</li>
+              <li>Wait for the analysis progress bar to complete (0-100%)</li>
+              <li>View the extracted content in the editor, ready for refinement</li>
+            </ol>
+          </div>
+
+          <div class="bg-[#111722] rounded-lg p-4">
+            <h4 class="text-sm font-semibold text-[#92a4c9] mb-3">File Upload Workflow:</h4>
+            <div class="mermaid">
+flowchart TD
+    A[User selects files] --> B{File type?}
+    B -->|Image| C[Analyze with Imagen AI]
+    B -->|Text/Markdown| D[Extract text content]
+    B -->|PDF/Doc/PPT| E[Use as research source]
+    C --> F[Append to editor]
+    D --> F
+    E --> F
+    F --> G[Content ready for refinement]
+    
+    style A fill:#135bec,stroke:#135bec,color:#fff
+    style G fill:#135bec,stroke:#135bec,color:#fff
+    style B fill:#232f48,stroke:#92a4c9,color:#fff
+    style C fill:#232f48,stroke:#92a4c9,color:#fff
+    style D fill:#232f48,stroke:#92a4c9,color:#fff
+    style E fill:#232f48,stroke:#92a4c9,color:#fff
+    style F fill:#232f48,stroke:#92a4c9,color:#fff
+            </div>
+          </div>
+        </div>
+
+        <!-- Text Input Feature -->
+        <div id="text-input" class="feature-card mb-8 lg:mb-12 bg-[#232f48] rounded-lg border border-[#135bec]/20">
+          <h3 class="text-2xl font-bold mb-4 text-white">✍️ Text Input</h3>
+          <p class="text-[#92a4c9] mb-6">
+            <strong>User Need:</strong> Paste or type learning content directly into the editor for quick content creation.
+          </p>
+          
+          <div class="mb-6">
+            <h4 class="text-lg font-semibold text-white mb-3">How to Input Text:</h4>
+            <ol class="list-decimal list-inside space-y-2 text-[#92a4c9] ml-4">
+              <li>Click in the text editor area to focus</li>
+              <li>Type your content directly or paste from clipboard (Ctrl+V / Cmd+V)</li>
+              <li>Your content appears in the editor, ready for refinement or additional input</li>
+            </ol>
+          </div>
+
+          <div class="bg-[#111722] rounded-lg p-4">
+            <h4 class="text-sm font-semibold text-[#92a4c9] mb-3">Text Input Flow:</h4>
+            <div class="mermaid">
+flowchart LR
+    A[User clicks editor] --> B[Type or paste text]
+    B --> C[Content appears in editor]
+    C --> D[Ready for refinement]
+    
+    style A fill:#135bec,stroke:#135bec,color:#fff
+    style D fill:#135bec,stroke:#135bec,color:#fff
+    style B fill:#232f48,stroke:#92a4c9,color:#fff
+    style C fill:#232f48,stroke:#92a4c9,color:#fff
+            </div>
+          </div>
+        </div>
+
+        <!-- Voice Input Feature -->
+        <div id="voice-input" class="feature-card mb-8 lg:mb-12 bg-[#232f48] rounded-lg border border-[#135bec]/20">
+          <h3 class="text-2xl font-bold mb-4 text-white">🎤 Voice Input</h3>
+          <p class="text-[#92a4c9] mb-6">
+            <strong>User Need:</strong> Speak learning topics or content using your microphone for hands-free input.
+          </p>
+          
+          <div class="mb-6">
+            <h4 class="text-lg font-semibold text-white mb-3">How to Use Voice Input:</h4>
+            <ol class="list-decimal list-inside space-y-2 text-[#92a4c9] ml-4">
+              <li>Click the <span class="text-[#135bec] font-semibold">microphone icon</span> in the search area</li>
+              <li>Grant microphone permissions if prompted by your browser</li>
+              <li>Speak clearly into your microphone</li>
+              <li>Click the stop button when you're finished speaking</li>
+              <li>Your transcribed text appears in the search box, ready to be processed</li>
+            </ol>
+          </div>
+
+          <div class="bg-[#111722] rounded-lg p-4">
+            <h4 class="text-sm font-semibold text-[#92a4c9] mb-3">Voice Input Sequence:</h4>
+            <div class="mermaid">
+sequenceDiagram
+    participant User
+    participant Browser
+    participant Microphone
+    participant Gemini Audio AI
+    participant Editor
+    
+    User->>Browser: Click microphone icon
+    Browser->>User: Request permissions
+    User->>Browser: Grant permissions
+    Browser->>Microphone: Start recording
+    User->>Microphone: Speak content
+    User->>Browser: Click stop
+    Microphone->>Gemini Audio AI: Send audio stream
+    Gemini Audio AI->>Editor: Return transcription
+    Editor->>User: Display text
+    
+    Note over User,Editor: Real-time audio streaming with native audio support
+            </div>
+          </div>
+        </div>
+
+        <!-- Search/URL Input Feature -->
+        <div id="search-url-input" class="feature-card mb-8 lg:mb-12 bg-[#232f48] rounded-lg border border-[#135bec]/20">
+          <h3 class="text-2xl font-bold mb-4 text-white">🔍 Search & URL Input</h3>
+          <p class="text-[#92a4c9] mb-6">
+            <strong>User Need:</strong> Search for topics or provide URLs to automatically generate learning content from web sources.
+          </p>
+          
+          <div class="mb-6">
+            <h4 class="text-lg font-semibold text-white mb-3">How to Search or Use URLs:</h4>
+            <ol class="list-decimal list-inside space-y-2 text-[#92a4c9] ml-4">
+              <li>Type a topic or paste a URL in the search box</li>
+              <li>Toggle <span class="text-[#135bec] font-semibold">"Search Grounding"</span> if you want the AI to search the web for current information</li>
+              <li>Click the search icon or press Enter</li>
+              <li>The AI searches and generates relevant content based on your query</li>
+              <li>Content streams into the editor in real-time</li>
+            </ol>
+          </div>
+
+          <div class="bg-[#111722] rounded-lg p-4">
+            <h4 class="text-sm font-semibold text-[#92a4c9] mb-3">Search Workflow:</h4>
+            <div class="mermaid">
+flowchart TD
+    A[User enters topic/URL] --> B{Search Grounding enabled?}
+    B -->|Yes| C[Gemini AI searches web]
+    B -->|No| D[Gemini AI uses knowledge]
+    C --> E[Gather information]
+    D --> E
+    E --> F[Generate content]
+    F --> G[Stream to editor]
+    G --> H[Content ready for refinement]
+    
+    style A fill:#135bec,stroke:#135bec,color:#fff
+    style H fill:#135bec,stroke:#135bec,color:#fff
+    style B fill:#232f48,stroke:#92a4c9,color:#fff
+    style C fill:#232f48,stroke:#92a4c9,color:#fff
+    style D fill:#232f48,stroke:#92a4c9,color:#fff
+    style E fill:#232f48,stroke:#92a4c9,color:#fff
+    style F fill:#232f48,stroke:#92a4c9,color:#fff
+    style G fill:#232f48,stroke:#92a4c9,color:#fff
+            </div>
+          </div>
+        </div>
+
+        <!-- Content Refinement Feature -->
+        <div id="content-refinement" class="feature-card mb-8 lg:mb-12 bg-[#232f48] rounded-lg border border-[#135bec]/20">
+          <h3 class="text-2xl font-bold mb-4 text-white">✨ Content Refinement</h3>
+          <p class="text-[#92a4c9] mb-6">
+            <strong>User Need:</strong> Transform raw content into a structured, comprehensive learning report with chapters and Q&A sections.
+          </p>
+          
+          <div class="mb-6">
+            <h4 class="text-lg font-semibold text-white mb-3">How to Refine Content:</h4>
+            <ol class="list-decimal list-inside space-y-2 text-[#92a4c9] ml-4">
+              <li>Add all your desired content to the editor using any of the input methods above</li>
+              <li>Click the <span class="text-[#135bec] font-semibold">"Refine"</span> button</li>
+              <li>The AI processes and structures your content into a comprehensive learning report</li>
+              <li>Review the refined report with organized chapters and Q&A sections</li>
+              <li>Click <span class="text-[#135bec] font-semibold">"Start Learning"</span> to proceed to the interactive Main Page</li>
+            </ol>
+          </div>
+
+          <div class="bg-[#111722] rounded-lg p-4">
+            <h4 class="text-sm font-semibold text-[#92a4c9] mb-3">Refinement Process:</h4>
+            <div class="mermaid">
+flowchart LR
+    A[Raw content] --> B[Gemini AI Processing]
+    B --> C[Structure analysis]
+    C --> D[Chapter generation]
+    D --> E[Q&A creation]
+    E --> F[Formatted report]
+    F --> G[Ready for learning]
+    
+    style A fill:#135bec,stroke:#135bec,color:#fff
+    style G fill:#135bec,stroke:#135bec,color:#fff
+    style B fill:#232f48,stroke:#92a4c9,color:#fff
+    style C fill:#232f48,stroke:#92a4c9,color:#fff
+    style D fill:#232f48,stroke:#92a4c9,color:#fff
+    style E fill:#232f48,stroke:#92a4c9,color:#fff
+    style F fill:#232f48,stroke:#92a4c9,color:#fff
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Main Page Section -->
+      <div id="main-page" class="scroll-mt-24">
+        <h2 class="text-4xl font-bold mb-6 text-white border-b border-[#232f48] pb-4">Main Page Features</h2>
+        <p class="text-[#92a4c9] text-lg leading-relaxed mb-8">
+          The Main Page is your interactive learning environment. After refining your content, you'll have access to structured chapters, an AI tutor for questions, and powerful editing capabilities. This is where your personalized learning experience comes to life.
+        </p>
+
+        <!-- Reading Chapters Feature -->
+        <div id="reading-chapters" class="feature-card mb-8 lg:mb-12 bg-[#232f48] rounded-lg border border-[#135bec]/20">
+          <h3 class="text-2xl font-bold mb-4 text-white">📖 Reading Chapters</h3>
+          <p class="text-[#92a4c9] mb-6">
+            <strong>User Need:</strong> Navigate and read through structured learning content organized into chapters and sections.
+          </p>
+          
+          <div class="mb-6">
+            <h4 class="text-lg font-semibold text-white mb-3">How to Read Chapters:</h4>
+            <ol class="list-decimal list-inside space-y-2 text-[#92a4c9] ml-4">
+              <li>View the complete chapter list in the left sidebar</li>
+              <li>Click on any chapter title to navigate to that section</li>
+              <li>Read the content in the main central area with formatted text and images</li>
+              <li>Use the scroll bar or click on other chapters to continue your learning journey</li>
+            </ol>
+          </div>
+
+          <div class="bg-[#111722] rounded-lg p-4">
+            <h4 class="text-sm font-semibold text-[#92a4c9] mb-3">Chapter Navigation Structure:</h4>
+            <div class="mermaid">
+graph TB
+    A[Learning Report] --> B[Chapter List Sidebar]
+    B --> C[Chapter 1]
+    B --> D[Chapter 2]
+    B --> E[Chapter 3]
+    B --> F[More Chapters...]
+    
+    C --> G[Main Content Area]
+    D --> G
+    E --> G
+    F --> G
+    
+    G --> H[Formatted Text]
+    G --> I[Images]
+    G --> J[Q&A Sections]
+    
+    style A fill:#135bec,stroke:#135bec,color:#fff
+    style B fill:#232f48,stroke:#92a4c9,color:#fff
+    style C fill:#232f48,stroke:#92a4c9,color:#fff
+    style D fill:#232f48,stroke:#92a4c9,color:#fff
+    style E fill:#232f48,stroke:#92a4c9,color:#fff
+    style F fill:#232f48,stroke:#92a4c9,color:#fff
+    style G fill:#135bec,stroke:#135bec,color:#fff
+    style H fill:#232f48,stroke:#92a4c9,color:#fff
+    style I fill:#232f48,stroke:#92a4c9,color:#fff
+    style J fill:#232f48,stroke:#92a4c9,color:#fff
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Tutor Chat Feature -->
+        <div id="ai-tutor-chat" class="feature-card mb-8 lg:mb-12 bg-[#232f48] rounded-lg border border-[#135bec]/20">
+          <h3 class="text-2xl font-bold mb-4 text-white">💬 AI Tutor Chat</h3>
+          <p class="text-[#92a4c9] mb-6">
+            <strong>User Need:</strong> Ask questions and get context-aware answers from the AI tutor about the current chapter or topic.
+          </p>
+          
+          <div class="mb-6">
+            <h4 class="text-lg font-semibold text-white mb-3">How to Chat with the AI Tutor:</h4>
+            <ol class="list-decimal list-inside space-y-2 text-[#92a4c9] ml-4">
+              <li>Type your question in the chat input box located in the right sidebar</li>
+              <li>Toggle the <span class="text-[#135bec] font-semibold">"Search"</span> option if you want the AI to search the web for current information</li>
+              <li>Press Enter or click the send button to submit your question</li>
+              <li>The AI responds with a context-aware answer based on the current chapter and your question</li>
+              <li>Continue the conversation by asking follow-up questions to deepen your understanding</li>
+            </ol>
+          </div>
+
+          <div class="bg-[#111722] rounded-lg p-4">
+            <h4 class="text-sm font-semibold text-[#92a4c9] mb-3">Chat Interaction Flow:</h4>
+            <div class="mermaid">
+sequenceDiagram
+    participant User
+    participant Chat UI
+    participant Gemini AI
+    participant Web Search
+    participant Chapter Context
+    
+    User->>Chat UI: Type question
+    Chat UI->>Chapter Context: Get current chapter
+    Chapter Context-->>Chat UI: Return context
+    Chat UI->>Gemini AI: Send question + context
+    
+    alt Search enabled
+        Gemini AI->>Web Search: Query for information
+        Web Search-->>Gemini AI: Return results
+    end
+    
+    Gemini AI->>Gemini AI: Generate answer
+    Gemini AI-->>Chat UI: Stream response
+    Chat UI-->>User: Display answer
+    
+    Note over User,Chapter Context: Context-aware responses based on current chapter
+            </div>
+          </div>
+        </div>
+
+        <!-- Editing Chapter Content Feature -->
+        <div id="editing-chapters" class="feature-card mb-8 lg:mb-12 bg-[#232f48] rounded-lg border border-[#135bec]/20">
+          <h3 class="text-2xl font-bold mb-4 text-white">✏️ Editing Chapter Content</h3>
+          <p class="text-[#92a4c9] mb-6">
+            <strong>User Need:</strong> Modify chapter text directly to personalize content, fix errors, or add your own notes.
+          </p>
+          
+          <div class="mb-6">
+            <h4 class="text-lg font-semibold text-white mb-3">How to Edit Chapters:</h4>
+            <ol class="list-decimal list-inside space-y-2 text-[#92a4c9] ml-4">
+              <li>Right-click on the chapter content you want to edit</li>
+              <li>Select <span class="text-[#135bec] font-semibold">"Edit"</span> from the context menu that appears</li>
+              <li>Modify the markdown text in the editor that opens (supports full markdown syntax)</li>
+              <li>Click <span class="text-[#135bec] font-semibold">"Save"</span> to apply your changes to the chapter</li>
+              <li>Click <span class="text-[#135bec] font-semibold">"Cancel"</span> if you want to discard your changes</li>
+            </ol>
+          </div>
+
+          <div class="bg-[#111722] rounded-lg p-4">
+            <h4 class="text-sm font-semibold text-[#92a4c9] mb-3">Edit Workflow:</h4>
+            <div class="mermaid">
+flowchart TD
+    A[Right-click chapter] --> B[Context menu appears]
+    B --> C[Select 'Edit']
+    C --> D[Markdown editor opens]
+    D --> E{User action?}
+    E -->|Modify text| F[Make changes]
+    F --> G{Save or Cancel?}
+    G -->|Save| H[Update chapter content]
+    G -->|Cancel| I[Discard changes]
+    H --> J[Chapter updated]
+    I --> J[Return to reading]
+    
+    style A fill:#135bec,stroke:#135bec,color:#fff
+    style J fill:#135bec,stroke:#135bec,color:#fff
+    style B fill:#232f48,stroke:#92a4c9,color:#fff
+    style C fill:#232f48,stroke:#92a4c9,color:#fff
+    style D fill:#232f48,stroke:#92a4c9,color:#fff
+    style E fill:#232f48,stroke:#92a4c9,color:#fff
+    style F fill:#232f48,stroke:#92a4c9,color:#fff
+    style G fill:#232f48,stroke:#92a4c9,color:#fff
+    style H fill:#232f48,stroke:#92a4c9,color:#fff
+    style I fill:#232f48,stroke:#92a4c9,color:#fff
+            </div>
+          </div>
+        </div>
+
+        <!-- Rewriting Chapters Feature -->
+        <div id="rewriting-chapters" class="feature-card mb-8 lg:mb-12 bg-[#232f48] rounded-lg border border-[#135bec]/20">
+          <h3 class="text-2xl font-bold mb-4 text-white">🔄 Rewriting Chapters</h3>
+          <p class="text-[#92a4c9] mb-6">
+            <strong>User Need:</strong> Use AI assistance to regenerate and improve chapter content with fresh perspectives or different approaches.
+          </p>
+          
+          <div class="mb-6">
+            <h4 class="text-lg font-semibold text-white mb-3">How to Rewrite Chapters:</h4>
+            <ol class="list-decimal list-inside space-y-2 text-[#92a4c9] ml-4">
+              <li>Right-click on the chapter you want to rewrite</li>
+              <li>Select <span class="text-[#135bec] font-semibold">"Rewrite"</span> from the context menu</li>
+              <li>The AI regenerates the chapter content with improved structure and clarity</li>
+              <li>Watch as the new content streams in real-time, replacing the old version</li>
+              <li>Review the rewritten content and edit further if needed using the Edit feature</li>
+            </ol>
+          </div>
+
+          <div class="bg-[#111722] rounded-lg p-4">
+            <h4 class="text-sm font-semibold text-[#92a4c9] mb-3">Rewrite Process:</h4>
+            <div class="mermaid">
+flowchart LR
+    A[Right-click chapter] --> B[Select 'Rewrite']
+    B --> C[Send to Gemini AI]
+    C --> D[AI analyzes content]
+    D --> E[Generate new version]
+    E --> F[Stream to UI]
+    F --> G[Replace old content]
+    G --> H[Review & refine]
+    
+    style A fill:#135bec,stroke:#135bec,color:#fff
+    style H fill:#135bec,stroke:#135bec,color:#fff
+    style B fill:#232f48,stroke:#92a4c9,color:#fff
+    style C fill:#232f48,stroke:#92a4c9,color:#fff
+    style D fill:#232f48,stroke:#92a4c9,color:#fff
+    style E fill:#232f48,stroke:#92a4c9,color:#fff
+    style F fill:#232f48,stroke:#92a4c9,color:#fff
+    style G fill:#232f48,stroke:#92a4c9,color:#fff
+            </div>
+          </div>
+        </div>
+
+        <!-- Adding New Chapters Feature -->
+        <div id="adding-chapters" class="feature-card mb-8 lg:mb-12 bg-[#232f48] rounded-lg border border-[#135bec]/20">
+          <h3 class="text-2xl font-bold mb-4 text-white">➕ Adding New Chapters</h3>
+          <p class="text-[#92a4c9] mb-6">
+            <strong>User Need:</strong> Expand your learning content by creating new chapters on related topics or areas you want to explore further.
+          </p>
+          
+          <div class="mb-6">
+            <h4 class="text-lg font-semibold text-white mb-3">How to Add New Chapters:</h4>
+            <ol class="list-decimal list-inside space-y-2 text-[#92a4c9] ml-4">
+              <li>Click the <span class="text-[#135bec] font-semibold">"+"</span> button in the chapter sidebar</li>
+              <li>Enter a chapter title in the prompt that appears</li>
+              <li>Provide additional details or topics you want the chapter to cover</li>
+              <li>The AI generates a new chapter with relevant content, Q&A sections, and structure</li>
+              <li>The new chapter appears in your chapter list, ready to read and interact with</li>
+            </ol>
+          </div>
+
+          <div class="bg-[#111722] rounded-lg p-4">
+            <h4 class="text-sm font-semibold text-[#92a4c9] mb-3">Chapter Creation Flow:</h4>
+            <div class="mermaid">
+flowchart TD
+    A[Click '+' button] --> B[Enter chapter title]
+    B --> C[Provide topic details]
+    C --> D[Send to Gemini AI]
+    D --> E[AI generates content]
+    E --> F[Create chapter structure]
+    F --> G[Add Q&A sections]
+    G --> H[Stream to UI]
+    H --> I[Add to chapter list]
+    I --> J[Ready to read]
+    
+    style A fill:#135bec,stroke:#135bec,color:#fff
+    style J fill:#135bec,stroke:#135bec,color:#fff
+    style B fill:#232f48,stroke:#92a4c9,color:#fff
+    style C fill:#232f48,stroke:#92a4c9,color:#fff
+    style D fill:#232f48,stroke:#92a4c9,color:#fff
+    style E fill:#232f48,stroke:#92a4c9,color:#fff
+    style F fill:#232f48,stroke:#92a4c9,color:#fff
+    style G fill:#232f48,stroke:#92a4c9,color:#fff
+    style H fill:#232f48,stroke:#92a4c9,color:#fff
+    style I fill:#232f48,stroke:#92a4c9,color:#fff
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Technical Details Section -->
+      <div id="technical-details" class="scroll-mt-24">
+        <h2 class="text-4xl font-bold mb-6 text-white border-b border-[#232f48] pb-4">Technical Details</h2>
+        <p class="text-[#92a4c9] text-lg leading-relaxed mb-8">
+          ReflectLearning is powered by Google's advanced AI technologies. This section provides technical insights into the AI models used, system architecture, and data handling practices.
+        </p>
+
+        <!-- AI Models Section -->
+        <div id="ai-models" class="feature-card mb-8 lg:mb-12 bg-[#232f48] rounded-lg border border-[#135bec]/20">
+          <h3 class="text-2xl font-bold mb-4 text-white">🤖 AI Models & Capabilities</h3>
+          <p class="text-[#92a4c9] mb-6">
+            ReflectLearning leverages three powerful Google AI models to provide a comprehensive learning experience:
+          </p>
+
+          <!-- Gemini Text AI -->
+          <div class="mb-8">
+            <h4 class="text-xl font-semibold text-white mb-3 flex items-center">
+              <span class="material-symbols-outlined text-[#135bec] mr-2">psychology</span>
+              Gemini Text AI
+            </h4>
+            <p class="text-[#92a4c9] mb-3">
+              <strong>Model:</strong> <code class="bg-[#111722] px-2 py-1 rounded text-[#135bec]">gemini-flash-lite-latest</code> and <code class="bg-[#111722] px-2 py-1 rounded text-[#135bec]">gemini-2.5-flash-native-audio-preview</code>
+            </p>
+            <p class="text-[#92a4c9] mb-3">
+              <strong>Capabilities:</strong>
+            </p>
+            <ul class="list-disc list-inside space-y-2 text-[#92a4c9] ml-4">
+              <li><strong>Content Analysis:</strong> Processes uploaded files (PDFs, documents, presentations) to extract and understand learning material</li>
+              <li><strong>Content Generation:</strong> Creates structured learning reports with chapters, Q&A sections, and comprehensive explanations</li>
+              <li><strong>Conversational AI:</strong> Powers the interactive tutor chat, providing context-aware answers to your questions</li>
+              <li><strong>Web Search Integration:</strong> Can search the web for current information when "Search Grounding" is enabled</li>
+              <li><strong>Content Refinement:</strong> Transforms raw content into well-organized, pedagogically sound learning materials</li>
+              <li><strong>Chapter Rewriting:</strong> Regenerates chapter content with improved clarity and structure</li>
+              <li><strong>Adaptive Learning:</strong> Adjusts responses based on conversation history and current chapter context</li>
+            </ul>
+            <p class="text-[#92a4c9] mt-3">
+              <strong>Usage:</strong> Gemini Text AI is the core intelligence behind content processing, chat interactions, and all text-based features in ReflectLearning.
+            </p>
+          </div>
+
+          <!-- Imagen Image AI -->
+          <div class="mb-8">
+            <h4 class="text-xl font-semibold text-white mb-3 flex items-center">
+              <span class="material-symbols-outlined text-[#135bec] mr-2">image</span>
+              Imagen Image AI
+            </h4>
+            <p class="text-[#92a4c9] mb-3">
+              <strong>Model:</strong> <code class="bg-[#111722] px-2 py-1 rounded text-[#135bec]">imagen-4.0-generate-001</code>
+            </p>
+            <p class="text-[#92a4c9] mb-3">
+              <strong>Capabilities:</strong>
+            </p>
+            <ul class="list-disc list-inside space-y-2 text-[#92a4c9] ml-4">
+              <li><strong>Image Analysis:</strong> Analyzes uploaded images to extract text, concepts, and visual information</li>
+              <li><strong>Visual Content Understanding:</strong> Interprets diagrams, charts, and educational images to enhance learning materials</li>
+              <li><strong>Image Generation:</strong> Creates custom visual aids and illustrations to support learning concepts (when requested)</li>
+              <li><strong>Multi-modal Learning:</strong> Combines visual and textual information for comprehensive content understanding</li>
+            </ul>
+            <p class="text-[#92a4c9] mt-3">
+              <strong>Usage:</strong> Imagen AI processes image uploads and can generate visual learning aids to complement textual content.
+            </p>
+          </div>
+
+          <!-- Gemini Audio AI -->
+          <div class="mb-8">
+            <h4 class="text-xl font-semibold text-white mb-3 flex items-center">
+              <span class="material-symbols-outlined text-[#135bec] mr-2">mic</span>
+              Gemini Audio AI
+            </h4>
+            <p class="text-[#92a4c9] mb-3">
+              <strong>Model:</strong> <code class="bg-[#111722] px-2 py-1 rounded text-[#135bec]">gemini-2.5-flash-native-audio-preview</code>
+            </p>
+            <p class="text-[#92a4c9] mb-3">
+              <strong>Capabilities:</strong>
+            </p>
+            <ul class="list-disc list-inside space-y-2 text-[#92a4c9] ml-4">
+              <li><strong>Voice Input:</strong> Transcribes spoken content into text for hands-free content input</li>
+              <li><strong>Real-time Audio Streaming:</strong> Processes audio in real-time with native audio support for immediate transcription</li>
+              <li><strong>Voice-based Tutoring:</strong> Enables voice interactions with the AI tutor for a more natural learning experience</li>
+              <li><strong>Multi-language Support:</strong> Recognizes and transcribes speech in multiple languages</li>
+              <li><strong>Reflection Mode:</strong> Powers voice-based reflection sessions where you can answer questions verbally</li>
+            </ul>
+            <p class="text-[#92a4c9] mt-3">
+              <strong>Usage:</strong> Gemini Audio AI enables voice input features throughout the application, making learning more accessible and interactive.
+            </p>
+          </div>
+        </div>
+
+        <!-- System Architecture Section -->
+        <div id="system-architecture" class="feature-card mb-8 lg:mb-12 bg-[#232f48] rounded-lg border border-[#135bec]/20">
+          <h3 class="text-2xl font-bold mb-4 text-white">🏗️ System Architecture</h3>
+          <p class="text-[#92a4c9] mb-6">
+            ReflectLearning follows a client-side architecture that communicates directly with Google AI services. Here's how data flows through the system:
+          </p>
+
+          <div class="bg-[#111722] rounded-lg p-4 mb-6">
+            <h4 class="text-sm font-semibold text-[#92a4c9] mb-3">Data Flow Architecture:</h4>
+            <div class="mermaid">
+graph TB
+    subgraph "User Interface"
+        A[Upload Page]
+        B[Main Page]
+    end
+    
+    subgraph "Google AI Services"
+        C[Gemini Text AI]
+        D[Imagen Image AI]
+        E[Gemini Audio AI]
+    end
+    
+    subgraph "Features"
+        F[File Upload]
+        G[Text Input]
+        H[Voice Input]
+        I[Search/URL]
+        J[Chat]
+        K[Edit/Rewrite]
+        L[Add Chapters]
+    end
+    
+    A -->|Files/Text/Voice| F
+    A -->|Text| G
+    A -->|Voice| H
+    A -->|Search| I
+    
+    F -->|Text Content| C
+    F -->|Images| D
+    G -->|Text| C
+    H -->|Audio Stream| E
+    I -->|Query| C
+    
+    C -->|Refined Report| B
+    E -->|Transcription| A
+    D -->|Image Analysis| A
+    
+    B -->|Questions| J
+    B -->|Edit Request| K
+    B -->|New Chapter| L
+    
+    J -->|Query + Context| C
+    K -->|Content| C
+    L -->|Topic| C
+    
+    C -->|Responses| B
+    D -->|Generated Images| B
+    
+    style A fill:#135bec,stroke:#135bec,color:#fff
+    style B fill:#135bec,stroke:#135bec,color:#fff
+    style C fill:#232f48,stroke:#92a4c9,color:#fff
+    style D fill:#232f48,stroke:#92a4c9,color:#fff
+    style E fill:#232f48,stroke:#92a4c9,color:#fff
+    style F fill:#111722,stroke:#92a4c9,color:#fff
+    style G fill:#111722,stroke:#92a4c9,color:#fff
+    style H fill:#111722,stroke:#92a4c9,color:#fff
+    style I fill:#111722,stroke:#92a4c9,color:#fff
+    style J fill:#111722,stroke:#92a4c9,color:#fff
+    style K fill:#111722,stroke:#92a4c9,color:#fff
+    style L fill:#111722,stroke:#92a4c9,color:#fff
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <h4 class="text-lg font-semibold text-white mb-2">Request/Response Patterns</h4>
+              <ul class="list-disc list-inside space-y-2 text-[#92a4c9] ml-4">
+                <li><strong>Streaming Responses:</strong> AI-generated content streams in real-time, providing immediate feedback as content is generated</li>
+                <li><strong>Context Preservation:</strong> Chat conversations maintain context from previous messages and the current chapter</li>
+                <li><strong>Asynchronous Processing:</strong> File uploads and content analysis happen asynchronously without blocking the UI</li>
+                <li><strong>Direct API Communication:</strong> The application communicates directly with Google AI APIs using your API key</li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 class="text-lg font-semibold text-white mb-2">Component Architecture</h4>
+              <ul class="list-disc list-inside space-y-2 text-[#92a4c9] ml-4">
+                <li><strong>Upload Page:</strong> Handles all input methods (files, text, voice, search) and content refinement</li>
+                <li><strong>Main Page:</strong> Provides the interactive learning interface with chapters, chat, and editing capabilities</li>
+                <li><strong>Gemini Service:</strong> Wrapper layer that manages API calls, streaming, and error handling</li>
+                <li><strong>State Management:</strong> React hooks manage application state, chat history, and content updates</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Data Storage & Connectivity Section -->
+        <div id="data-storage" class="feature-card mb-8 lg:mb-12 bg-[#232f48] rounded-lg border border-[#135bec]/20">
+          <h3 class="text-2xl font-bold mb-4 text-white">💾 Data Storage & Connectivity</h3>
+          
+          <div class="space-y-6">
+            <!-- Temporary Data Storage -->
+            <div>
+              <h4 class="text-xl font-semibold text-white mb-3 flex items-center">
+                <span class="material-symbols-outlined text-[#135bec] mr-2">storage</span>
+                Temporary Data Storage
+              </h4>
+              <p class="text-[#92a4c9] mb-3">
+                ReflectLearning operates entirely in your browser with <strong>no persistent database or server-side storage</strong>:
+              </p>
+              <ul class="list-disc list-inside space-y-2 text-[#92a4c9] ml-4">
+                <li><strong>Session-based Storage:</strong> All learning content, chat history, and chapters exist only in your current browser session</li>
+                <li><strong>No Data Persistence:</strong> When you close the browser or refresh the page, all content is lost</li>
+                <li><strong>Privacy-First:</strong> Your learning materials and conversations are never stored on external servers</li>
+                <li><strong>Local Processing:</strong> Content is processed in your browser and sent directly to Google AI services</li>
+                <li><strong>API Key Security:</strong> Your API key is stored locally in your browser's environment variables</li>
+              </ul>
+              <div class="mt-4 p-4 bg-[#111722] border-l-4 border-[#135bec] rounded">
+                <p class="text-[#92a4c9]">
+                  <strong>💡 Tip:</strong> If you want to save your learning content, use the browser's print function (Ctrl+P / Cmd+P) to save chapters as PDF, or copy the content to an external document.
+                </p>
+              </div>
+            </div>
+
+            <!-- Internet Connection Requirement -->
+            <div>
+              <h4 class="text-xl font-semibold text-white mb-3 flex items-center">
+                <span class="material-symbols-outlined text-[#135bec] mr-2">wifi</span>
+                Internet Connection Requirement
+              </h4>
+              <p class="text-[#92a4c9] mb-3">
+                ReflectLearning requires a <strong>stable internet connection</strong> to function:
+              </p>
+              <ul class="list-disc list-inside space-y-2 text-[#92a4c9] ml-4">
+                <li><strong>Real-time AI Processing:</strong> All AI features require active communication with Google's cloud services</li>
+                <li><strong>Streaming Content:</strong> Content generation and chat responses stream in real-time over the network</li>
+                <li><strong>Web Search:</strong> When "Search Grounding" is enabled, the AI searches the web for current information</li>
+                <li><strong>Minimum Bandwidth:</strong> A broadband connection is recommended for optimal streaming performance</li>
+                <li><strong>Offline Mode:</strong> The application cannot function without an internet connection</li>
+              </ul>
+            </div>
+
+            <!-- Google AI Services Dependency -->
+            <div>
+              <h4 class="text-xl font-semibold text-white mb-3 flex items-center">
+                <span class="material-symbols-outlined text-[#135bec] mr-2">cloud</span>
+                Google AI Services Dependency
+              </h4>
+              <p class="text-[#92a4c9] mb-3">
+                ReflectLearning is fully dependent on <strong>Google AI services</strong> for all intelligent features:
+              </p>
+              <ul class="list-disc list-inside space-y-2 text-[#92a4c9] ml-4">
+                <li><strong>API Key Required:</strong> You must provide a valid Google AI API key to use the application</li>
+                <li><strong>Service Availability:</strong> Application functionality depends on Google AI service uptime and availability</li>
+                <li><strong>API Quotas:</strong> Usage is subject to Google AI API rate limits and quotas associated with your API key</li>
+                <li><strong>Model Updates:</strong> The application benefits from Google's continuous model improvements and updates</li>
+                <li><strong>Data Processing:</strong> All AI processing happens on Google's servers, not locally in your browser</li>
+              </ul>
+              <div class="mt-4 p-4 bg-[#111722] border-l-4 border-yellow-500 rounded">
+                <p class="text-[#92a4c9]">
+                  <strong>⚠️ Important:</strong> Keep your API key secure and never share it publicly. Monitor your API usage through the Google AI Studio dashboard to avoid unexpected charges.
+                </p>
+              </div>
+            </div>
+
+            <!-- Technical Requirements Summary -->
+            <div class="mt-6 p-4 bg-[#111722] rounded-lg">
+              <h4 class="text-lg font-semibold text-white mb-3">Technical Requirements Summary</h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-[#92a4c9]">
+                <div>
+                  <p class="font-semibold text-white mb-2">Required:</p>
+                  <ul class="list-disc list-inside space-y-1 text-sm">
+                    <li>Modern web browser (Chrome, Firefox, Safari, Edge)</li>
+                    <li>Stable internet connection (broadband recommended)</li>
+                    <li>Valid Google AI API key</li>
+                    <li>Microphone access (for voice features)</li>
+                  </ul>
+                </div>
+                <div>
+                  <p class="font-semibold text-white mb-2">Not Required:</p>
+                  <ul class="list-disc list-inside space-y-1 text-sm">
+                    <li>Server installation or setup</li>
+                    <li>Database configuration</li>
+                    <li>Account creation or login</li>
+                    <li>Software downloads or plugins</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- FAQ Section -->
+      <div id="faq" class="scroll-mt-24">
+        <h2 class="text-4xl font-bold mb-6 text-white border-b border-[#232f48] pb-4">Frequently Asked Questions</h2>
+        <p class="text-[#92a4c9] text-lg leading-relaxed mb-8">
+          Find answers to common questions about using ReflectLearning AI Tutor. Click on any question to expand the answer.
+        </p>
+
+        <div class="space-y-4">
+          
+          <!-- FAQ Item 1: API Key Setup -->
+          <div class="faq-item bg-[#232f48] rounded-lg border border-[#135bec]/20 overflow-hidden">
+            <button class="faq-question w-full text-left px-6 py-4 flex items-center justify-between hover:bg-[#2a3a5a] transition-colors duration-200" aria-expanded="false">
+              <span class="text-lg font-semibold text-white pr-4">🔑 How do I get and set up a Google AI API key?</span>
+              <span class="material-symbols-outlined text-[#135bec] flex-shrink-0 faq-icon">expand_more</span>
+            </button>
+            <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
+              <div class="px-6 py-4 text-[#92a4c9] space-y-3">
+                <p><strong>Getting your API key:</strong></p>
+                <ol class="list-decimal list-inside space-y-2 ml-4">
+                  <li>Visit <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-[#135bec] hover:underline">Google AI Studio</a></li>
+                  <li>Sign in with your Google account</li>
+                  <li>Click "Get API Key" or "Create API Key"</li>
+                  <li>Copy the generated API key</li>
+                </ol>
+                <p class="mt-4"><strong>Setting up in ReflectLearning:</strong></p>
+                <ol class="list-decimal list-inside space-y-2 ml-4">
+                  <li>When you first open ReflectLearning, you'll see an API key modal</li>
+                  <li>Paste your API key into the input field</li>
+                  <li>Click "Save" to store it locally in your browser</li>
+                  <li>The key is stored securely in your browser's local storage</li>
+                </ol>
+                <div class="mt-4 p-3 bg-[#111722] border-l-4 border-yellow-500 rounded">
+                  <p><strong>⚠️ Security Note:</strong> Never share your API key publicly or commit it to version control. Keep it secure and monitor your usage in Google AI Studio.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Item 2: Supported File Formats -->
+          <div class="faq-item bg-[#232f48] rounded-lg border border-[#135bec]/20 overflow-hidden">
+            <button class="faq-question w-full text-left px-6 py-4 flex items-center justify-between hover:bg-[#2a3a5a] transition-colors duration-200" aria-expanded="false">
+              <span class="text-lg font-semibold text-white pr-4">📄 What file formats are supported for upload?</span>
+              <span class="material-symbols-outlined text-[#135bec] flex-shrink-0 faq-icon">expand_more</span>
+            </button>
+            <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
+              <div class="px-6 py-4 text-[#92a4c9] space-y-3">
+                <p>ReflectLearning supports a variety of file formats for learning material uploads:</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                  <div>
+                    <p class="font-semibold text-white mb-2">Document Formats:</p>
+                    <ul class="list-disc list-inside space-y-1">
+                      <li>PDF (.pdf)</li>
+                      <li>Microsoft Word (.docx, .doc)</li>
+                      <li>Microsoft PowerPoint (.pptx, .ppt)</li>
+                      <li>Plain Text (.txt)</li>
+                      <li>Markdown (.md)</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <p class="font-semibold text-white mb-2">Image Formats:</p>
+                    <ul class="list-disc list-inside space-y-1">
+                      <li>JPEG (.jpg, .jpeg)</li>
+                      <li>PNG (.png)</li>
+                      <li>GIF (.gif)</li>
+                      <li>WebP (.webp)</li>
+                      <li>BMP (.bmp)</li>
+                    </ul>
+                  </div>
+                </div>
+                <p class="mt-4"><strong>File Size Limits:</strong> Individual files should be under 10MB for optimal processing. Larger files may take longer to analyze or may fail to upload.</p>
+                <p><strong>Multiple Files:</strong> You can upload multiple files at once. The AI will analyze and combine content from all uploaded files.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Item 3: Privacy and Data Handling -->
+          <div class="faq-item bg-[#232f48] rounded-lg border border-[#135bec]/20 overflow-hidden">
+            <button class="faq-question w-full text-left px-6 py-4 flex items-center justify-between hover:bg-[#2a3a5a] transition-colors duration-200" aria-expanded="false">
+              <span class="text-lg font-semibold text-white pr-4">🔒 How is my data handled? Is my information private?</span>
+              <span class="material-symbols-outlined text-[#135bec] flex-shrink-0 faq-icon">expand_more</span>
+            </button>
+            <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
+              <div class="px-6 py-4 text-[#92a4c9] space-y-3">
+                <p><strong>Privacy-First Design:</strong></p>
+                <ul class="list-disc list-inside space-y-2 ml-4">
+                  <li><strong>No Server Storage:</strong> ReflectLearning doesn't have a backend server. All data exists only in your browser session</li>
+                  <li><strong>Session-Only Data:</strong> Your learning content, chat history, and chapters are stored temporarily in your browser's memory</li>
+                  <li><strong>No Persistence:</strong> When you close the browser or refresh the page, all content is permanently deleted</li>
+                  <li><strong>Local API Key:</strong> Your Google AI API key is stored only in your browser's local storage, never on external servers</li>
+                  <li><strong>Direct Communication:</strong> The app communicates directly with Google AI services using your API key</li>
+                </ul>
+                <p class="mt-4"><strong>Google AI Data Processing:</strong></p>
+                <ul class="list-disc list-inside space-y-2 ml-4">
+                  <li>Content you upload or generate is processed by Google AI services according to <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" class="text-[#135bec] hover:underline">Google's Privacy Policy</a></li>
+                  <li>Google may use your API interactions to improve their services (check Google AI terms for details)</li>
+                  <li>Your API usage is logged in your Google AI account for billing and monitoring purposes</li>
+                </ul>
+                <div class="mt-4 p-3 bg-[#111722] border-l-4 border-[#135bec] rounded">
+                  <p><strong>💡 Best Practice:</strong> Don't upload sensitive, confidential, or personally identifiable information. Treat ReflectLearning like any other cloud AI service.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Item 4: Browser Compatibility -->
+          <div class="faq-item bg-[#232f48] rounded-lg border border-[#135bec]/20 overflow-hidden">
+            <button class="faq-question w-full text-left px-6 py-4 flex items-center justify-between hover:bg-[#2a3a5a] transition-colors duration-200" aria-expanded="false">
+              <span class="text-lg font-semibold text-white pr-4">🌐 Which browsers are compatible with ReflectLearning?</span>
+              <span class="material-symbols-outlined text-[#135bec] flex-shrink-0 faq-icon">expand_more</span>
+            </button>
+            <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
+              <div class="px-6 py-4 text-[#92a4c9] space-y-3">
+                <p><strong>Fully Supported Browsers:</strong></p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                  <div>
+                    <p class="font-semibold text-white mb-2">Desktop:</p>
+                    <ul class="list-disc list-inside space-y-1">
+                      <li>Google Chrome (version 90+)</li>
+                      <li>Microsoft Edge (version 90+)</li>
+                      <li>Mozilla Firefox (version 88+)</li>
+                      <li>Safari (version 14+)</li>
+                      <li>Opera (version 76+)</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <p class="font-semibold text-white mb-2">Mobile:</p>
+                    <ul class="list-disc list-inside space-y-1">
+                      <li>Chrome Mobile (Android)</li>
+                      <li>Safari Mobile (iOS 14+)</li>
+                      <li>Samsung Internet</li>
+                      <li>Firefox Mobile</li>
+                    </ul>
+                  </div>
+                </div>
+                <p class="mt-4"><strong>Required Browser Features:</strong></p>
+                <ul class="list-disc list-inside space-y-2 ml-4">
+                  <li><strong>JavaScript:</strong> Must be enabled (required for all functionality)</li>
+                  <li><strong>Microphone Access:</strong> Required for voice input features</li>
+                  <li><strong>Local Storage:</strong> Required for API key storage</li>
+                  <li><strong>Modern CSS:</strong> Support for CSS Grid, Flexbox, and custom properties</li>
+                </ul>
+                <div class="mt-4 p-3 bg-[#111722] border-l-4 border-yellow-500 rounded">
+                  <p><strong>⚠️ Note:</strong> Internet Explorer is not supported. For the best experience, use the latest version of Chrome, Edge, or Firefox.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Item 5: Troubleshooting -->
+          <div class="faq-item bg-[#232f48] rounded-lg border border-[#135bec]/20 overflow-hidden">
+            <button class="faq-question w-full text-left px-6 py-4 flex items-center justify-between hover:bg-[#2a3a5a] transition-colors duration-200" aria-expanded="false">
+              <span class="text-lg font-semibold text-white pr-4">🔧 Troubleshooting: Common Issues and Solutions</span>
+              <span class="material-symbols-outlined text-[#135bec] flex-shrink-0 faq-icon">expand_more</span>
+            </button>
+            <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300">
+              <div class="px-6 py-4 text-[#92a4c9] space-y-4">
+                
+                <div>
+                  <p class="font-semibold text-white mb-2">❌ "API Key Invalid" Error</p>
+                  <ul class="list-disc list-inside space-y-1 ml-4">
+                    <li>Verify your API key is correct (no extra spaces or characters)</li>
+                    <li>Check that your API key is active in <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-[#135bec] hover:underline">Google AI Studio</a></li>
+                    <li>Ensure you haven't exceeded your API quota or rate limits</li>
+                    <li>Try generating a new API key if the issue persists</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <p class="font-semibold text-white mb-2">🎤 Microphone Not Working</p>
+                  <ul class="list-disc list-inside space-y-1 ml-4">
+                    <li>Check browser permissions: Click the lock icon in the address bar and enable microphone access</li>
+                    <li>Ensure your microphone is connected and working (test in system settings)</li>
+                    <li>Try refreshing the page and granting permissions again</li>
+                    <li>Check if another application is using the microphone</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <p class="font-semibold text-white mb-2">📁 File Upload Fails</p>
+                  <ul class="list-disc list-inside space-y-1 ml-4">
+                    <li>Verify the file format is supported (see "Supported File Formats" above)</li>
+                    <li>Check file size (should be under 10MB)</li>
+                    <li>Ensure you have a stable internet connection</li>
+                    <li>Try uploading one file at a time if multiple uploads fail</li>
+                    <li>Check your API quota hasn't been exceeded</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <p class="font-semibold text-white mb-2">⏳ Content Generation is Slow</p>
+                  <ul class="list-disc list-inside space-y-1 ml-4">
+                    <li>Check your internet connection speed</li>
+                    <li>Large or complex content takes longer to process</li>
+                    <li>Google AI services may experience temporary slowdowns during peak usage</li>
+                    <li>Try breaking large content into smaller chunks</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <p class="font-semibold text-white mb-2">💾 Lost My Content After Refresh</p>
+                  <ul class="list-disc list-inside space-y-1 ml-4">
+                    <li>This is expected behavior - ReflectLearning doesn't save data between sessions</li>
+                    <li>Use browser print (Ctrl+P / Cmd+P) to save content as PDF before closing</li>
+                    <li>Copy important content to an external document for safekeeping</li>
+                    <li>Consider keeping source materials accessible for regeneration</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <p class="font-semibold text-white mb-2">🖼️ Diagrams Not Rendering</p>
+                  <ul class="list-disc list-inside space-y-1 ml-4">
+                    <li>Ensure JavaScript is enabled in your browser</li>
+                    <li>Check that Mermaid.js CDN is accessible (not blocked by firewall/ad blocker)</li>
+                    <li>Try refreshing the page</li>
+                    <li>Clear browser cache and reload</li>
+                  </ul>
+                </div>
+
+                <div class="mt-4 p-3 bg-[#111722] border-l-4 border-[#135bec] rounded">
+                  <p><strong>💡 Still Having Issues?</strong> Try these general troubleshooting steps:</p>
+                  <ul class="list-disc list-inside space-y-1 ml-4 mt-2">
+                    <li>Clear your browser cache and cookies</li>
+                    <li>Try using a different browser</li>
+                    <li>Disable browser extensions temporarily</li>
+                    <li>Check the browser console for error messages (F12 → Console tab)</li>
+                  </ul>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+    
+    </div><!-- End content-wrapper -->
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-[#232f48] mt-16 py-12 border-t border-[#135bec]/20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+        
+        <!-- About Section -->
+        <div>
+          <h3 class="text-lg font-bold text-white mb-4 flex items-center">
+            <span class="material-symbols-outlined text-[#135bec] mr-2">info</span>
+            About ReflectLearning
+          </h3>
+          <p class="text-[#92a4c9] text-sm leading-relaxed">
+            ReflectLearning is an AI-powered learning platform that transforms your materials into interactive, personalized learning experiences using Google's advanced Gemini AI technology.
+          </p>
+        </div>
+
+        <!-- Resources Section -->
+        <div>
+          <h3 class="text-lg font-bold text-white mb-4 flex items-center">
+            <span class="material-symbols-outlined text-[#135bec] mr-2">link</span>
+            Resources
+          </h3>
+          <ul class="space-y-2 text-sm">
+            <li>
+              <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-[#92a4c9] hover:text-[#135bec] transition-colors duration-200 flex items-center">
+                <span class="material-symbols-outlined text-xs mr-2">key</span>
+                Get Google AI API Key
+              </a>
+            </li>
+            <li>
+              <a href="https://ai.google.dev/gemini-api/docs" target="_blank" rel="noopener noreferrer" class="text-[#92a4c9] hover:text-[#135bec] transition-colors duration-200 flex items-center">
+                <span class="material-symbols-outlined text-xs mr-2">description</span>
+                Gemini API Documentation
+              </a>
+            </li>
+            <li>
+              <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" class="text-[#92a4c9] hover:text-[#135bec] transition-colors duration-200 flex items-center">
+                <span class="material-symbols-outlined text-xs mr-2">privacy_tip</span>
+                Google Privacy Policy
+              </a>
+            </li>
+            <li>
+              <a href="../index.html" class="text-[#92a4c9] hover:text-[#135bec] transition-colors duration-200 flex items-center">
+                <span class="material-symbols-outlined text-xs mr-2">home</span>
+                Back to Application
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Support Section -->
+        <div>
+          <h3 class="text-lg font-bold text-white mb-4 flex items-center">
+            <span class="material-symbols-outlined text-[#135bec] mr-2">support</span>
+            Support
+          </h3>
+          <ul class="space-y-2 text-sm">
+            <li>
+              <a href="#faq" class="text-[#92a4c9] hover:text-[#135bec] transition-colors duration-200 flex items-center">
+                <span class="material-symbols-outlined text-xs mr-2">help</span>
+                FAQ & Troubleshooting
+              </a>
+            </li>
+            <li>
+              <a href="#getting-started" class="text-[#92a4c9] hover:text-[#135bec] transition-colors duration-200 flex items-center">
+                <span class="material-symbols-outlined text-xs mr-2">rocket_launch</span>
+                Getting Started Guide
+              </a>
+            </li>
+            <li>
+              <a href="#technical-details" class="text-[#92a4c9] hover:text-[#135bec] transition-colors duration-200 flex items-center">
+                <span class="material-symbols-outlined text-xs mr-2">settings</span>
+                Technical Details
+              </a>
+            </li>
+          </ul>
+          <div class="mt-4 p-3 bg-[#111722] rounded-lg">
+            <p class="text-[#92a4c9] text-xs">
+              <strong class="text-white">Need Help?</strong><br>
+              Check the FAQ section above for common questions and troubleshooting tips.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Bar -->
+      <div class="border-t border-[#111722] pt-6">
+        <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+          <div class="text-center md:text-left">
+            <p class="text-[#92a4c9] text-sm">
+              &copy; 2025 ReflectLearning AI Tutor. All rights reserved.
+            </p>
+            <p class="text-[#92a4c9] text-xs mt-1">
+              Powered by <a href="https://ai.google.dev/" target="_blank" rel="noopener noreferrer" class="text-[#135bec] hover:underline">Google Gemini AI</a>
+            </p>
+          </div>
+          <div class="flex items-center space-x-4 text-sm">
+            <span class="text-[#92a4c9]">Built with</span>
+            <div class="flex items-center space-x-2">
+              <span class="text-[#135bec]">React</span>
+              <span class="text-[#92a4c9]">•</span>
+              <span class="text-[#135bec]">TypeScript</span>
+              <span class="text-[#92a4c9]">•</span>
+              <span class="text-[#135bec]">Vite</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Smooth Scrolling and Mobile TOC Toggle Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Mobile TOC Toggle
+      const tocToggle = document.getElementById('toc-toggle');
+      const tocContent = document.getElementById('toc-content');
+      
+      if (tocToggle && tocContent) {
+        // Show TOC content by default on desktop
+        if (window.innerWidth >= 1024) {
+          tocContent.classList.add('active');
+        }
+        
+        tocToggle.addEventListener('click', function() {
+          const isActive = tocContent.classList.toggle('active');
+          tocToggle.classList.toggle('active');
+          tocToggle.setAttribute('aria-expanded', isActive);
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+          if (window.innerWidth >= 1024) {
+            tocContent.classList.add('active');
+            tocToggle.classList.remove('active');
+          } else {
+            tocContent.classList.remove('active');
+            tocToggle.classList.remove('active');
+          }
+        });
+      }
+      
+      // Handle smooth scrolling with offset for sticky header
+      const tocLinks = document.querySelectorAll('a[href^="#"]');
+      
+      tocLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          const targetId = this.getAttribute('href').substring(1);
+          const targetElement = document.getElementById(targetId);
+          
+          if (targetElement) {
+            // Get the header height for offset calculation
+            const header = document.querySelector('header');
+            const headerHeight = header ? header.offsetHeight : 0;
+            
+            // Calculate the target position with offset
+            const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - headerHeight - 20;
+            
+            // Smooth scroll to the target position
+            window.scrollTo({
+              top: targetPosition,
+              behavior: 'smooth'
+            });
+            
+            // Close mobile TOC after clicking a link
+            if (window.innerWidth < 1024 && tocContent) {
+              tocContent.classList.remove('active');
+              if (tocToggle) {
+                tocToggle.classList.remove('active');
+                tocToggle.setAttribute('aria-expanded', 'false');
+              }
+            }
+          }
+        });
+      });
+
+      // FAQ Accordion Functionality
+      const faqQuestions = document.querySelectorAll('.faq-question');
+      
+      faqQuestions.forEach(question => {
+        question.addEventListener('click', function() {
+          const faqItem = this.parentElement;
+          const answer = faqItem.querySelector('.faq-answer');
+          const icon = this.querySelector('.faq-icon');
+          const isExpanded = this.getAttribute('aria-expanded') === 'true';
+          
+          // Close all other FAQ items
+          faqQuestions.forEach(otherQuestion => {
+            if (otherQuestion !== question) {
+              const otherItem = otherQuestion.parentElement;
+              const otherAnswer = otherItem.querySelector('.faq-answer');
+              const otherIcon = otherQuestion.querySelector('.faq-icon');
+              
+              otherAnswer.style.maxHeight = '0';
+              otherQuestion.setAttribute('aria-expanded', 'false');
+              otherIcon.textContent = 'expand_more';
+            }
+          });
+          
+          // Toggle current FAQ item
+          if (isExpanded) {
+            answer.style.maxHeight = '0';
+            this.setAttribute('aria-expanded', 'false');
+            icon.textContent = 'expand_more';
+          } else {
+            answer.style.maxHeight = answer.scrollHeight + 'px';
+            this.setAttribute('aria-expanded', 'true');
+            icon.textContent = 'expand_less';
+          }
+        });
+      });
+
+      // User Mode Toggle Functionality
+      const normalModeBtn = document.getElementById('normalModeBtn');
+      const developerModeBtn = document.getElementById('developerModeBtn');
+      
+      // Load saved mode from localStorage or default to 'normal'
+      let currentMode = localStorage.getItem('userMode') || 'normal';
+      
+      // Set initial state
+      if (currentMode === 'developer') {
+        normalModeBtn.classList.remove('active');
+        developerModeBtn.classList.add('active');
+      }
+      
+      // Normal Mode Button Click
+      normalModeBtn.addEventListener('click', function() {
+        if (currentMode !== 'normal') {
+          currentMode = 'normal';
+          localStorage.setItem('userMode', 'normal');
+          normalModeBtn.classList.add('active');
+          developerModeBtn.classList.remove('active');
+          
+          // Future: Hide/show developer content
+          console.log('Switched to Normal User mode');
+        }
+      });
+      
+      // Developer Mode Button Click
+      developerModeBtn.addEventListener('click', function() {
+        if (currentMode !== 'developer') {
+          currentMode = 'developer';
+          localStorage.setItem('userMode', 'developer');
+          developerModeBtn.classList.add('active');
+          normalModeBtn.classList.remove('active');
+          
+          // Future: Hide/show developer content
+          console.log('Switched to Developer mode');
+        }
+      });
+    });
+  </script>
+
+  <!-- Mermaid.js Initialization -->
+  <script>
+    // Initialize Mermaid with dark theme matching the application colors
+    // Responsive configuration based on screen size
+    const isMobile = window.innerWidth < 768;
+    const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
+    
+    const mermaidConfig = {
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        primaryColor: '#135bec',
+        primaryTextColor: '#fff',
+        primaryBorderColor: '#232f48',
+        lineColor: '#92a4c9',
+        secondaryColor: '#232f48',
+        tertiaryColor: '#111722',
+        background: '#111722',
+        mainBkg: '#232f48',
+        secondBkg: '#111722',
+        textColor: '#fff',
+        fontSize: isMobile ? '11px' : (isTablet ? '12px' : '14px'),
+        fontFamily: 'Lexend, sans-serif'
+      },
+      flowchart: {
+        curve: 'basis',
+        padding: isMobile ? 10 : 20,
+        useMaxWidth: true,
+        htmlLabels: true
+      },
+      sequence: {
+        actorMargin: isMobile ? 30 : 50,
+        width: isMobile ? 100 : (isTablet ? 120 : 150),
+        height: isMobile ? 45 : (isTablet ? 55 : 65),
+        boxMargin: isMobile ? 5 : 10,
+        boxTextMargin: 5,
+        noteMargin: isMobile ? 5 : 10,
+        messageMargin: isMobile ? 20 : 35,
+        useMaxWidth: true
+      },
+      graph: {
+        useMaxWidth: true,
+        htmlLabels: true
+      }
+    };
+    
+    mermaid.initialize(mermaidConfig);
+    
+    // Re-render diagrams on window resize for better responsiveness
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        location.reload(); // Simple approach: reload page on significant resize
+      }, 1000);
+    });
+  </script>
+
+</body>
+</html>

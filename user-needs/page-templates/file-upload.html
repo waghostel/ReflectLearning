@@ -1,0 +1,166 @@
+<html><head>
+<meta charset="utf-8"/>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+  .sticky-section {
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    z-index: 50;
+    background-color: #111722;
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease-in-out;
+  }
+</style>
+</head>
+<body>
+<div class="relative flex h-auto min-h-screen w-full flex-col bg-[#111722] dark group/design-root overflow-x-hidden" style='font-family: Inter, "Noto Sans", sans-serif;'>
+<div class="layout-container flex h-full grow flex-col">
+<header class="sticky top-0 flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#232f48] px-10 py-3 bg-[#111722] z-30">
+<div class="flex items-center gap-4 text-white">
+<div class="size-4">
+<svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 4H6V17.3333V30.6667H24V44H42V30.6667V17.3333H24V4Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-white text-lg font-bold leading-tight tracking-[-0.015em]">
+              ReflectLearning
+            </h2>
+</div>
+<div class="flex flex-1 items-center justify-end gap-8">
+<div class="flex items-center rounded-full bg-[#111722] border-[2.5px] border-solid border-[#34405a] p-1 shadow-lg opacity-50">
+<button class="flex-1 rounded-full px-4 py-2 text-sm font-bold leading-normal text-[#6b7280] cursor-not-allowed">
+            Learning Mode
+          </button>
+<button class="flex-1 rounded-full px-4 py-2 text-sm font-bold leading-normal text-[#6b7280] cursor-not-allowed">
+            Reflection Mode
+          </button>
+</div>
+<div class="flex items-center gap-9">
+<a class="text-[#6b7280] text-sm font-medium leading-normal cursor-not-allowed" href="#">Upload material</a>
+<a class="text-white text-sm font-medium leading-normal" href="#">Help</a>
+</div>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDCqjvcOEGqN8as9qRHmbikoGvmzpUidFXQByIqyA2ldM771E8sJDtGyp11DmZzrQvxlEy13gGUbmiYLyLXJNXI-uD0_M9TbCh7IM1BPOK5W3a-M2efXqboPggFkZ77LWauifhUMCO45PxXkhCX7YoO-xYhu4hZrM6WEZ74uW7WhLnvj3Usx2lLnT4cV8EODdq2X-QBnu84PCwZeptVnWSo3hoAWNyk-32YQ6JZPGgrnEXjbKriGPc_api7SfG06-jeRtWdhwjJMVY");'></div>
+</div>
+</header>
+<div class="fixed top-[84px] right-10 z-20 flex gap-3">
+<button class="cursor-pointer items-center justify-center overflow-hidden rounded-full px-6 py-2 bg-[#232f48] border-[2.5px] border-solid border-[#34405a] text-white text-sm font-medium leading-normal hover:bg-[#34405a]">Clear all</button>
+<button class="bg-[#135bec] text-white text-sm font-medium leading-normal px-6 py-2 rounded-full hover:bg-[#0d4bb8]">Done</button>
+</div>
+<div class="px-40 flex flex-1 justify-center py-5">
+<div class="layout-content-container flex flex-col w-[512px] max-w-[512px] py-5 max-w-[960px] flex-1 pb-24">
+<h3 class="text-white text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-5">Upload Files</h3>
+<div class="flex flex-col p-4">
+<div class="flex flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed border-[#324467] px-6 py-14">
+<div class="flex flex-col gap-2 text-center">
+<p class="text-white text-lg font-bold leading-tight tracking-[-0.015em]">Drag and drop files here</p>
+<p class="text-white text-sm font-normal leading-normal">Or select files from your computer</p>
+</div>
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#232f48] text-white text-sm font-bold leading-normal tracking-[0.015em] shrink-0">
+<span class="truncate">Select Files</span>
+</button>
+</div>
+</div>
+<h3 class="text-white text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-8">Paste contents</h3>
+<div class="flex flex-col gap-4 px-4 py-3">
+<div class="flex border-b border-[#324467]">
+<button class="flex-1 text-center py-2 px-4 text-sm font-medium leading-normal text-white border-b-2 border-[#135bec] focus:outline-none">
+                  Text Input
+                </button>
+<button class="flex-1 text-center py-2 px-4 text-sm font-medium leading-normal text-[#92a4c9] border-b-2 border-transparent hover:border-[#324467] focus:outline-none">
+                  Paste URLs
+                </button>
+</div>
+<div>
+<label class="flex flex-col flex-1">
+<textarea class="form-textarea flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#324467] bg-[#192233] focus:border-[#324467] placeholder:text-[#92a4c9] p-[15px] text-base font-normal leading-normal" placeholder="Chapter 3: Introduction to Variables
+Variables are fundamental building blocks in programming...
+(Paste your learning material here)" rows="8"></textarea>
+</label>
+</div>
+</div>
+<h3 class="text-white text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Uploading status</h3>
+<div class="flex flex-col gap-2 px-4 py-3 bg-[#111722] rounded-lg">
+<div class="flex gap-4 text-sm text-[#92a4c9] font-normal leading-normal">
+
+<span>Pending: 1</span>
+<span>In Progress: 1</span>
+<span>Completed: 1</span>
+</div>
+</div>
+<div class="flex items-center gap-4 bg-[#111722] px-4 min-h-[72px] py-2 justify-between">
+<div class="flex items-center gap-4">
+<div class="text-[#ef4444] flex items-center justify-center rounded-lg bg-[#232f48] shrink-0 size-12" data-icon="FilePdf" data-size="32px" data-weight="regular">
+<svg fill="currentColor" height="32px" viewBox="0 0 256 256" width="32px" xmlns="http://www.w3.org/2000/svg">
+<path d="M224,152a8,8,0,0,1-8,8H192v16h16a8,8,0,0,1,0,16H192v16a8,8,0,0,1-16,0V152a8,8,0,0,1,8-8h32A8,8,0,0,1,224,152ZM92,172a28,28,0,0,1-28,28H56v8a8,8,0,0,1-16,0V152a8,8,0,0,1,8-8H64A28,28,0,0,1,92,172Zm-16,0a12,12,0,0,0-12-12H56v24h8A12,12,0,0,0,76,172Zm88,8a36,36,0,0,1-36,36H112a8,8,0,0,1-8-8V152a8,8,0,0,1,8-8h16A36,36,0,0,1,164,180Zm-16,0a20,20,0,0,0-20-20h-8v40h8A20,20,0,0,0,148,180ZM40,112V40A16,16,0,0,1,56,24h96a8,8,0,0,1,5.66,2.34l56,56A8,8,0,0,1,216,88v24a8,8,0,1,1-16,0V96H152a8,8,0,0,1-8-8V40H56v72a8,8,0,0,1-16,0ZM160,80h28.69L160,51.31Z"></path>
+</svg>
+</div>
+<div class="flex flex-col justify-center">
+<p class="text-white text-base font-medium leading-normal line-clamp-1">Document 1.pdf</p>
+<p class="text-[#92a4c9] text-sm font-normal leading-normal line-clamp-2">Progress: 75%</p>
+</div>
+</div>
+<div class="shrink-0">
+<div class="relative w-[160px]">
+<div class="w-full overflow-hidden rounded-sm bg-[#324467]"><div class="h-1 rounded-full bg-[#135bec]" style="width: 75%;"></div></div>
+<p class="absolute -top-5 right-0 text-white text-sm font-medium leading-normal">75%</p>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4 bg-[#111722] px-4 min-h-[72px] py-2 justify-between">
+<div class="flex items-center gap-4">
+<div class="text-[#f97316] flex items-center justify-center rounded-lg bg-[#232f48] shrink-0 size-12" data-icon="FilePpt" data-size="32px" data-weight="regular">
+<svg fill="currentColor" height="32px" viewBox="0 0 256 256" width="32px" xmlns="http://www.w3.org/2000/svg">
+<path d="M224,152a8,8,0,0,1-8,8H200v48a8,8,0,0,1-16,0V160H168a8,8,0,0,1,0-16h48A8,8,0,0,1,224,152ZM92,172a28,28,0,0,1-28,28H56v8a8,8,0,0,1-16,0V152a8,8,0,0,1,8-8H64A28,28,0,0,1,92,172Zm-16,0a12,12,0,0,0-12-12H56v24h8A12,12,0,0,0,76,172Zm88,0a28,28,0,0,1-28,28h-8v8a8,8,0,0,1-16,0V152a8,8,0,0,1,8-8h16A28,28,0,0,1,164,172Zm-16,0a12,12,0,0,0-12-12h-8v24h8A12,12,0,0,0,148,172ZM40,112V40A16,16,0,0,1,56,24h96a8,8,0,0,1,5.66,2.34l56,56A8,8,0,0,1,216,88v24a8,8,0,0,1-16,0V96H152a8,8,0,0,1-8-8V40H56v72a8,8,0,0,1-16,0ZM160,80h28.69L160,51.31Z"></path>
+</svg>
+</div>
+<div class="flex flex-col justify-center">
+<p class="text-white text-base font-medium leading-normal line-clamp-1">Presentation.pptx</p>
+<p class="text-[#92a4c9] text-sm font-normal leading-normal line-clamp-2">Progress: 100%</p>
+</div>
+</div>
+<div class="shrink-0">
+<div class="relative w-[160px]">
+<div class="w-full overflow-hidden rounded-sm bg-[#324467]"><div class="h-1 rounded-full bg-[#135bec]" style="width: 100%;"></div></div>
+<p class="absolute -top-5 right-0 text-white text-sm font-medium leading-normal">100%</p>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4 bg-[#111722] px-4 min-h-[72px] py-2 justify-between">
+<div class="flex items-center gap-4">
+<div class="text-[#3b82f6] flex items-center justify-center rounded-lg bg-[#232f48] shrink-0 size-12" data-icon="FileDoc" data-size="32px" data-weight="regular">
+<svg fill="currentColor" height="32px" viewBox="0 0 256 256" width="32px" xmlns="http://www.w3.org/2000/svg">
+<path d="M52,144H36a8,8,0,0,0-8,8v56a8,8,0,0,0,8,8H52a36,36,0,0,0,0-72Zm0,56H44V160h8a20,20,0,0,1,0,40Zm169.53-4.91a8,8,0,0,1,.25,11.31A30.06,30.06,0,0,1,200,216c-17.65,0-32-16.15-32-36s14.35-36,32-36a30.06,30.06,0,0,1,21.78,9.6,8,8,0,0,1-11.56,11.06A14.24,14.24,0,0,0,200,160c-8.82,0-16,9-16,20s7.18,20,16,20a14.24,14.24,0,0,0,10.22-4.66A8,8,0,0,1,221.53,195.09ZM128,144c-17.65,0-32,16.15-32,36s14.35,36,32,36,32-16.15,32-36S145.65,144,128,144Zm0,56c-8.82,0-16-9-16-20s7.18-20,16-20,16,9,16,20S136.82,200,128,200ZM48,120a8,8,0,0,0,8-8V40h88V88a8,8,0,0,0,8,8h48v16a8,8,0,0,0,16,0V88a8,8,0,0,0-2.34-5.66l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40v72A8,8,0,0,0,48,120ZM160,51.31,188.69,80H160Z"></path>
+</svg>
+</div>
+<div class="flex flex-col justify-center">
+<p class="text-white text-base font-medium leading-normal line-clamp-1">Article.docx</p>
+<p class="text-[#92a4c9] text-sm font-normal leading-normal line-clamp-2">Progress: 0%</p>
+</div>
+</div>
+<div class="shrink-0">
+<div class="relative w-[160px]">
+<div class="w-full overflow-hidden rounded-sm bg-[#324467]"><div class="h-1 rounded-full bg-[#135bec]" style="width: 0%;"></div></div>
+<p class="absolute -top-5 right-0 text-white text-sm font-medium leading-normal">0%</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="fixed bottom-0 left-0 right-0 flex items-center justify-center px-4 py-3 gap-3 z-20">
+<label class="flex flex-col min-w-40 h-12 w-full max-w-[980px] rounded-full">
+<div class="flex w-full flex-1 items-stretch border-[0.5px] border-solid border-[#34405a] rounded-full h-full">
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-l-full text-white focus:outline-0 focus:ring-0 border-none bg-[#232f48] focus:border-none h-full placeholder:text-[#92a4c9] px-4 pr-2 text-base font-normal leading-normal" placeholder="Help me to find learning material of... (Ask the AI to serach material for you)" value=""/>
+<div class="flex border-none bg-[#232f48] items-center pr-4 border-l-0 rounded-r-full">
+<button class="min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-8 px-4 bg-[#232f48] border-[2.5px] border-solid border-[#34405a] text-white text-sm font-medium leading-normal hover:bg-[#34405a]">
+<span class="truncate">Ask</span>
+</button>
+</div>
+</div>
+</label>
+</div>
+</div></div></body></html>

@@ -773,6 +773,12 @@ const UploadPage: React.FC<UploadPageProps> = ({ onDone, initialText }) => {
                     <div className="flex items-center gap-9">
                         <span className="text-white text-sm font-medium leading-normal">API Key Loaded</span>
                         <a className="text-white text-sm font-medium leading-normal" href="#">Help</a>
+                        <a 
+                            className="text-[#135bec] text-sm font-medium leading-normal hover:text-white transition-colors duration-200" 
+                            href="docs/user-guide.html"
+                        >
+                            Documentation
+                        </a>
                     </div>
                     <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" style={{ backgroundImage: `url("https://picsum.photos/40/40")` }}></div>
                 </div>

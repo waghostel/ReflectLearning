@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReflectLearning - Learn Smarter Through AI-Powered Reflection</title>
+    <meta name="description" content="Transform any learning material into an interactive AI tutor experience with personalized reports, voice chat, and adaptive Q&A sessions.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #111722;
+            --bg-secondary: #232f48;
+            --accent: #135bec;
+            --accent-hover: #0d4bc4;
+            --text-primary: #ffffff;
+            --text-secondary: #a0aec0;
+            --text-muted: #718096;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Lexend', sans-serif;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Header */
+        header {
+            padding: 1.5rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            background: rgba(17, 23, 34, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Lexend', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .cta-button {
+            background: var(--accent);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .cta-button:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(19, 91, 236, 0.3);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 8rem 0 4rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #a0aec0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero .tagline {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .secondary-button {
+            background: var(--bg-secondary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .secondary-button:hover {
+            background: rgba(35, 47, 72, 0.8);
+            border-color: var(--accent);
+        }
+
+        /* Google AI Studio Banner */
+        .ai-studio-banner {
+            padding: 4rem 0;
+            background: rgba(35, 47, 72, 0.2);
+        }
+
+        .banner-card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 3rem;
+            border: 1px solid rgba(19, 91, 236, 0.3);
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+            box-shadow: 0 10px 40px rgba(19, 91, 236, 0.2);
+        }
+
+        .banner-card h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .banner-card p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+
+        .banner-highlight {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .banner-stats {
+            display: flex;
+            gap: 3rem;
+            margin: 2.5rem 0;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            font-family: 'Lexend', sans-serif;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        .github-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--accent);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            margin-top: 1rem;
+            font-size: 1.05rem;
+        }
+
+        .github-link:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(19, 91, 236, 0.3);
+        }
+
+        .github-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 4rem 0;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            font-weight: 600;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 280px;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 30px rgba(19, 91, 236, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* How It Works */
+        .how-it-works {
+            padding: 4rem 0;
+            background: rgba(35, 47, 72, 0.3);
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .step {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 auto 1.5rem;
+        }
+
+        .step h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .step p {
+            color: var(--text-secondary);
+        }
+
+        /* Video Section */
+        .video-section {
+            padding: 4rem 0;
+            background: rgba(35, 47, 72, 0.3);
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            max-width: 900px;
+            margin: 0 auto;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(19, 91, 236, 0.3);
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+        }
+
+        /* Gallery */
+        .gallery {
+            padding: 4rem 0;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .gallery-item {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(19, 91, 236, 0.3);
+            border-color: var(--accent);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .gallery-caption {
+            padding: 1.5rem;
+        }
+
+        .gallery-caption h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .gallery-caption p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+        }
+
+        .modal-content img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0.5rem;
+        }
+
+        .modal-close:hover {
+            color: var(--accent);
+        }
+
+        /* Tech Stack */
+        .tech-stack {
+            padding: 4rem 0;
+            background: rgba(35, 47, 72, 0.3);
+        }
+
+        .tech-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+            margin-top: 3rem;
+        }
+
+        .tech-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .tech-badge {
+            background: var(--bg-secondary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .tech-badge:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 6rem 0;
+            text-align: center;
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta-section p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        /* Footer */
+        footer {
+            padding: 2rem 0;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero .tagline {
+                font-size: 1.25rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .features-grid,
+            .steps,
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .gallery-item img {
+                height: 200px;
+            }
+        }
+
+        /* AI Jobs Section */
+        .ai-jobs-section {
+            padding: 4rem 0;
+        }
+
+        .jobs-dropdown-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .job-selector {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            font-size: 1.1rem;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .job-selector:hover {
+            border-color: var(--accent);
+        }
+
+        .job-selector:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(19, 91, 236, 0.2);
+        }
+
+        .job-details {
+            margin-top: 2rem;
+            animation: fadeInUp 0.4s ease-out;
+        }
+
+        .job-info-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .job-header h3 {
+            font-size: 1.75rem;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .model-badge {
+            background: var(--accent);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .job-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .job-section h4 {
+            color: var(--accent);
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .job-section p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        .prompt-container {
+            position: relative;
+            margin-top: 1rem;
+        }
+
+        .job-section pre {
+            background: var(--bg-primary);
+            padding: 1.5rem;
+            padding-top: 3rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            color: var(--text-primary);
+            line-height: 1.6;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            position: relative;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background: rgba(19, 91, 236, 0.9);
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            width: 32px;
+            height: 32px;
+            z-index: 10;
+        }
+
+        .copy-button:hover {
+            background: var(--accent);
+            transform: translateY(-1px) scale(1.05);
+        }
+
+        .copy-button.copied {
+            background: #10b981;
+        }
+
+        .copy-button.copied .copy-icon {
+            display: none;
+        }
+
+        .copy-button.copied::after {
+            content: '✓';
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .copy-icon {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">ReflectLearning</div>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <a href="user-guide.html" class="secondary-button" style="padding: 0.5rem 1rem;">User Guide</a>
+                <a href="#get-started" class="cta-button">Get Started</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container">
+                <h1 class="fade-in-up">Learn Smarter Through AI-Powered Reflection</h1>
+                <p class="tagline fade-in-up">Transform any learning material into an interactive AI tutor experience with personalized reports, voice chat, and adaptive Q&A sessions that help you truly understand and retain knowledge.</p>
+                <div class="hero-buttons fade-in-up">
+                    <a href="#features" class="cta-button">Explore Features</a>
+                    <a href="#how-it-works" class="secondary-button">How It Works</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Google AI Studio Banner -->
+        <section class="ai-studio-banner">
+            <div class="container">
+                <div class="banner-card">
+                    <h2>🚀 Powered by Google AI Studio</h2>
+                    <p>
+                        This entire application was <span class="banner-highlight">rapidly developed using Google AI Studio</span>, showcasing how powerful AI tools can help developers build complex, production-ready applications in record time.
+                    </p>
+                    <p>
+                        From intelligent content processing and real-time streaming to voice interactions and adaptive learning—all powered by <span class="banner-highlight">Google's Gemini AI models</span>. See how easy it is to integrate cutting-edge AI capabilities into your applications.
+                    </p>
+                    <div class="banner-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">3</div>
+                            <div class="stat-label">Gemini Models</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">8+</div>
+                            <div class="stat-label">AI Features</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">100%</div>
+                            <div class="stat-label">AI-Powered</div>
+                        </div>
+                    </div>
+                    <a href="https://github.com/waghostel/ReflectLearning" target="_blank" rel="noopener noreferrer" class="github-link">
+                        <svg class="github-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                        View on GitHub
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="features"></section>
+            <div class="container">
+                <h2 class="section-title">Powerful Features for Active Learning</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">📚</div>
+                        <h3>Smart Content Processing</h3>
+                        <p>Upload PDFs, documents, images, text, or URLs. AI generates comprehensive, structured learning reports with chapters, Q&A sections, and sources.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💬</div>
+                        <h3>Interactive AI Tutor</h3>
+                        <p>Chat with an AI tutor that has full context of your learning material. Ask questions, get explanations, and generate visual aids on demand.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎤</div>
+                        <h3>Voice-Based Learning</h3>
+                        <p>Use native audio streaming for natural voice conversations with your AI tutor. Learn hands-free with real-time transcription.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Active Reflection Mode</h3>
+                        <p>Switch to an AI coach that proactively asks questions, displays them on a dynamic whiteboard, and guides you through mastery.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🧠</div>
+                        <h3>Persistent Memory System</h3>
+                        <p>Tracks your understanding per chapter—what you've mastered, what you're struggling with, and your interests for personalized sessions.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">✏️</div>
+                        <h3>Adaptive Content</h3>
+                        <p>Edit chapters, rewrite sections, append new paragraphs from chat responses, and regenerate Q&A sections on demand.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🌐</div>
+                        <h3>Web Search Integration</h3>
+                        <p>Toggle web search to enrich content with up-to-date information from the internet, ensuring current and comprehensive learning.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🗺️</div>
+                        <h3>Structured Navigation</h3>
+                        <p>Navigate through chapters with a sidebar, track your progress, and jump to specific sections with ease.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Real-Time Collaboration</h3>
+                        <p>Share learning sessions, collaborate with peers, and get instant feedback. Export reports as PDF or HTML for offline access.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works -->
+        <section id="how-it-works" class="how-it-works">
+            <div class="container">
+                <h2 class="section-title">How It Works</h2>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h3>Upload Materials</h3>
+                        <p>Upload your learning materials, paste text, or provide URLs. The AI analyzes everything.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h3>Generate Report</h3>
+                        <p>AI creates a comprehensive report with structured chapters, Q&A sections, and sources.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h3>Interactive Learning</h3>
+                        <p>Chat with your AI tutor, use voice interactions, or switch to Reflection Mode for active questioning.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <h3>Master the Material</h3>
+                        <p>AI tracks your progress, adapts to your understanding, and ensures you truly master the content.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Jobs Section -->
+        <section class="ai-jobs-section">
+            <div class="container">
+                <h2 class="section-title">AI Jobs & Model Usage</h2>
+                <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem; max-width: 700px; margin-left: auto; margin-right: auto;">
+                    Explore the different AI-powered jobs that make ReflectLearning intelligent. Each job uses specific Gemini models optimized for its purpose.
+                </p>
+                <div class="jobs-dropdown-container">
+                    <select id="jobSelector" class="job-selector">
+                        <option value="analyzeImage" selected>Image Content Analysis</option>
+                        <option value="searchMaterials">Search for Learning Materials</option>
+                        <option value="refineText">Refine Pasted Text</option>
+                        <option value="refineQuery">Refine User Search Query</option>
+                        <option value="suggestTopics">Suggest Extended Topics</option>
+                        <option value="tutorChat">AI Tutor Chat Response</option>
+                        <option value="refineTutorPrompt">Refine Tutor Chat Prompt</option>
+                        <option value="generateImage">Generate Image</option>
+                        <option value="rewriteChapter">Rewrite Entire Chapter</option>
+                        <option value="rewriteQnA">Generate/Rewrite Q&A Section</option>
+                        <option value="generateParagraphTitle">Generate Title for New Paragraph</option>
+                        <option value="generateChapterTitle">Generate Title for New Chapter</option>
+                        <option value="startReflection">Start Reflection Session</option>
+                        <option value="reflectionResponse">Socratic Dialogue & Response</option>
+                        <option value="liveVoice">Live Voice Transcription</option>
+                    </select>
+                    
+                    <div id="jobDetails" class="job-details" style="display: none;">
+                        <div class="job-info-card">
+                            <div class="job-header">
+                                <h3 id="jobTitle"></h3>
+                                <span id="jobModel" class="model-badge"></span>
+                            </div>
+                            <div class="job-content">
+                                <div class="job-section">
+                                    <h4>Function</h4>
+                                    <p id="jobFunction"></p>
+                                </div>
+                                <div class="job-section">
+                                    <h4>Purpose</h4>
+                                    <p id="jobPurpose"></p>
+                                </div>
+                                <div class="job-section">
+                                    <h4>Example Prompt Template</h4>
+                                    <div class="prompt-container">
+                                        <button class="copy-button" id="copyButton" onclick="copyPrompt()" title="Copy to clipboard">
+                                            <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                            </svg>
+                                        </button>
+                                        <pre id="jobPrompt"></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Video Demo -->
+        <section class="video-section">
+            <div class="container">
+                <h2 class="section-title">See ReflectLearning in Action</h2>
+                <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem; max-width: 700px; margin-left: auto; margin-right: auto;">
+                    Watch our demo video to see how ReflectLearning transforms your learning experience with AI-powered features.
+                </p>
+                <div class="video-container">
+                    <iframe 
+                        src="https://www.youtube.com/embed/PaDsPuIZ1MQ" 
+                        title="ReflectLearning: Learn Smarter Through AI-Powered Reflection" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery -->
+        <section class="gallery"></section>
+            <div class="container">
+                <h2 class="section-title">Experience ReflectLearning</h2>
+                <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem; max-width: 700px; margin-left: auto; margin-right: auto;">
+                    Explore our interactive learning platform through these screenshots showcasing the upload interface, AI-generated reports, interactive chat, and reflection modes.
+                </p>
+                <div class="gallery-grid">
+                    <div class="gallery-item" onclick="openModal('Screenshot_11-11-2025_8154_.jpeg')">
+                        <img src="Screenshot_11-11-2025_8154_.jpeg" alt="Upload Interface" loading="lazy">
+                        <div class="gallery-caption">
+                            <h3>Upload Interface</h3>
+                            <p>Drag and drop files, paste text, or provide URLs. Multiple file formats supported including PDFs, images, and documents.</p>
+                        </div>
+                    </div>
+                    <div class="gallery-item" onclick="openModal('Screenshot_11-11-2025_8317_.jpeg')">
+                        <img src="Screenshot_11-11-2025_8317_.jpeg" alt="Learning Report" loading="lazy">
+                        <div class="gallery-caption">
+                            <h3>AI-Generated Learning Report</h3>
+                            <p>Structured chapters with comprehensive content, Q&A sections, and sources. Navigate easily through your personalized learning material.</p>
+                        </div>
+                    </div>
+                    <div class="gallery-item" onclick="openModal('Screenshot_11-11-2025_8354_.jpeg')">
+                        <img src="Screenshot_11-11-2025_8354_.jpeg" alt="Interactive Chat" loading="lazy">
+                        <div class="gallery-caption">
+                            <h3>Interactive AI Tutor Chat</h3>
+                            <p>Ask questions, get explanations, and receive context-aware responses. The AI tutor understands your learning material completely.</p>
+                        </div>
+                    </div>
+                    <div class="gallery-item" onclick="openModal('fBhJorQ8.png')">
+                        <img src="fBhJorQ8.png" alt="Chapter Navigation" loading="lazy">
+                        <div class="gallery-caption">
+                            <h3>Chapter Navigation</h3>
+                            <p>Sidebar navigation with chapter overview, progress tracking, and quick jump to any section of your learning material.</p>
+                        </div>
+                    </div>
+                    <div class="gallery-item" onclick="openModal('fvRMvS0J.png')">
+                        <img src="fvRMvS0J.png" alt="Content Editing" loading="lazy">
+                        <div class="gallery-caption">
+                            <h3>Edit & Customize Content</h3>
+                            <p>Edit chapters in Markdown format, rewrite sections, and append new content from chat responses on the fly.</p>
+                        </div>
+                    </div>
+                    <div class="gallery-item" onclick="openModal('Gr_kET2Z.png')">
+                        <img src="Gr_kET2Z.png" alt="Q&A Sections" loading="lazy">
+                        <div class="gallery-caption">
+                            <h3>Q&A Sections</h3>
+                            <p>Auto-generated questions and answers for each chapter. Test your understanding and reinforce learning.</p>
+                        </div>
+                    </div>
+                    <div class="gallery-item" onclick="openModal('hkdEAIjm.png')">
+                        <img src="hkdEAIjm.png" alt="Voice Interaction" loading="lazy">
+                        <div class="gallery-caption">
+                            <h3>Voice-Based Learning</h3>
+                            <p>Natural voice conversations with real-time transcription. Learn hands-free with native audio streaming.</p>
+                        </div>
+                    </div>
+                    <div class="gallery-item" onclick="openModal('ISWlC54F.png')">
+                        <img src="ISWlC54F.png" alt="Reflection Mode" loading="lazy">
+                        <div class="gallery-caption">
+                            <h3>Active Reflection Mode</h3>
+                            <p>AI coach proactively asks questions on a dynamic whiteboard. Evaluate your understanding with intelligent questioning.</p>
+                        </div>
+                    </div>
+                    <div class="gallery-item" onclick="openModal('lKlE6Xpq.png')">
+                        <img src="lKlE6Xpq.png" alt="Memory System" loading="lazy">
+                        <div class="gallery-caption">
+                            <h3>Persistent Memory Tracking</h3>
+                            <p>System tracks what you've mastered, what you're struggling with, and your interests for personalized learning sessions.</p>
+                        </div>
+                    </div>
+                    <div class="gallery-item" onclick="openModal('NdY3ony-.png')">
+                        <img src="NdY3ony-.png" alt="Web Search Integration" loading="lazy">
+                        <div class="gallery-caption">
+                            <h3>Web Search Integration</h3>
+                            <p>Toggle web search to enrich content with up-to-date information from the internet for comprehensive learning.</p>
+                        </div>
+                    </div>
+                    <div class="gallery-item" onclick="openModal('SXk1VX75.png')">
+                        <img src="SXk1VX75.png" alt="Image Generation" loading="lazy">
+                        <div class="gallery-caption">
+                            <h3>AI Image Generation</h3>
+                            <p>Generate visual aids and diagrams on demand to enhance understanding of complex concepts.</p>
+                        </div>
+                    </div>
+                    <div class="gallery-item" onclick="openModal('TnkeKe0U.png')">
+                        <img src="TnkeKe0U.png" alt="Streaming Responses" loading="lazy">
+                        <div class="gallery-caption">
+                            <h3>Real-Time Streaming</h3>
+                            <p>Content appears as it's generated, creating a dynamic and engaging user experience with instant feedback.</p>
+                        </div>
+                    </div>
+                    <div class="gallery-item" onclick="openModal('uEqryk0N.png')">
+                        <img src="uEqryk0N.png" alt="Chapter Management" loading="lazy">
+                        <div class="gallery-caption">
+                            <h3>Chapter Management</h3>
+                            <p>Organize, edit, and manage your learning chapters. Add new sections, rewrite content, and regenerate Q&A.</p>
+                        </div>
+                    </div>
+                    <div class="gallery-item" onclick="openModal('wjsye0Ov.png')">
+                        <img src="wjsye0Ov.png" alt="Adaptive Learning Flow" loading="lazy">
+                        <div class="gallery-caption">
+                            <h3>Adaptive Learning Flow</h3>
+                            <p>Warm-up greetings with clickable suggestions, closed-loop evaluation cycles, and adaptive hints based on your progress.</p>
+                        </div>
+                    </div>
+                    <div class="gallery-item" onclick="openModal('jee37u78.png')">
+                        <img src="jee37u78.png" alt="Advanced Features" loading="lazy">
+                        <div class="gallery-caption">
+                            <h3>Advanced AI Capabilities</h3>
+                            <p>Experience the full power of Google's Gemini AI with advanced features including multi-modal understanding, context retention, and intelligent content generation.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modal for full-size images -->
+        <div id="imageModal" class="modal" onclick="closeModal()">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+                <img id="modalImage" src="" alt="Full size preview">
+            </div>
+        </div>
+
+        <!-- Tech Stack -->
+        <section class="tech-stack">
+            <div class="container">
+                <h2 class="section-title">Built With Modern Technology</h2>
+                <div class="tech-grid">
+                    <div class="tech-row">
+                        <span class="tech-badge">React 19</span>
+                        <span class="tech-badge">TypeScript</span>
+                        <span class="tech-badge">Google Gemini AI</span>
+                        <span class="tech-badge">Imagen 4.0</span>
+                        <span class="tech-badge">Web Audio API</span>
+                        <span class="tech-badge">Vite</span>
+                        <span class="tech-badge">Real-time Streaming</span>
+                    </div>
+                    <div class="tech-row">
+                        <span class="tech-badge">Voice Recognition</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section id="get-started" class="cta-section">
+            <div class="container">
+                <h2>Ready to Transform Your Learning?</h2>
+                <p>Experience the future of personalized, active learning with AI</p>
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem;">
+                    <a href="https://github.com/waghostel/ReflectLearning" target="_blank" rel="noopener noreferrer" class="cta-button" style="font-size: 1.125rem; padding: 1rem 2rem;">
+                        <svg style="width: 24px; height: 24px; display: inline-block; vertical-align: middle; margin-right: 0.5rem;" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                        View on GitHub
+                    </a>
+                    <a href="https://aistudio.google.com" target="_blank" rel="noopener noreferrer" class="secondary-button" style="font-size: 1.125rem; padding: 1rem 2rem;">Try Google AI Studio</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 ReflectLearning. Built with ❤️ for learners everywhere.</p>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+                <a href="user-guide.html" style="color: var(--accent); text-decoration: none;">📖 User Guide</a> | 
+                Fully developed with <a href="https://aistudio.google.com" target="_blank" rel="noopener noreferrer" style="color: var(--accent); text-decoration: none;">Google AI Studio</a> | 
+                <a href="https://github.com/waghostel/ReflectLearning" target="_blank" rel="noopener noreferrer" style="color: var(--accent); text-decoration: none;">View Source on GitHub</a>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all feature cards, steps, and gallery items
+        document.querySelectorAll('.feature-card, .step, .gallery-item').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+            observer.observe(el);
+        });
+
+        // Modal functions
+        function openModal(imageSrc) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.classList.add('active');
+            modalImg.src = imageSrc;
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('imageModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // AI Jobs Dropdown Functionality
+        const jobsData = {
+            analyzeImage: {
+                title: "Image Content Analysis",
+                function: "analyzeImage",
+                model: "gemini-2.5-flash",
+                purpose: "To analyze an uploaded image file and generate a textual description. The user provides the actual prompt, but a typical one is provided by the application.",
+                prompt: `Describe this image in detail. What are the key elements and what context can be inferred from it?`
+            },
+            searchMaterials: {
+                title: "Search for Learning Materials",
+                function: "searchLearningMaterialsStream",
+                model: "gemini-2.5-flash",
+                purpose: "To generate a comprehensive learning report from a user's search query.",
+                prompt: `You are an expert educator and content creator. Your task is to generate a comprehensive learning report based on the user's query: "\${query}".
+The report MUST be well-structured and formatted in Markdown.
+It MUST begin with a single, overarching '# H1' title that summarizes the topic.
+Following the title, the report MUST be broken down into multiple '## Chapter' sections. Each chapter should cover a specific aspect of the topic.
+Within each chapter, use bold markdown (**text**) for important keywords and knowledge points, and italic markdown (*text*) for words that require special emphasis in a sentence.
+Generate a complete, well-organized report.`
+            },
+            refineText: {
+                title: "Refine Pasted Text",
+                function: "refineTextStream",
+                model: "gemini-2.5-flash",
+                purpose: "To take raw, unstructured text and refine it into a well-structured learning report.",
+                prompt: `You are an expert editor. Your task is to refine and restructure the following text into a well-organized and comprehensive learning report. The original text may be a mix of pasted content, URLs, and raw notes.
+- Structure the content logically with a clear hierarchy using Markdown headings (#, ##, ###).
+- Start with a single, overarching '# H1' title.
+- Break down the main topics into '## Chapter' sections.
+- Rewrite and rephrase sentences for clarity, conciseness, and better flow.
+- Correct any grammatical errors or typos.
+- Use bold markdown (**text**) for key terms and italic markdown (*text*) for emphasis.
+- If the text is very sparse, expand upon the topics to create a more complete report.
+- Format the final output as a complete Markdown document.
+
+Original text:
+---
+\${text}
+---`
+            },
+            refineQuery: {
+                title: "Refine User Search Query",
+                function: "refineUserPrompt",
+                model: "gemini-2.5-flash",
+                purpose: "To expand a user's simple search topic into a detailed, structured prompt.",
+                prompt: `You are an expert instructional designer. A user has provided a topic for a new learning report. Your task is to refine this topic into a detailed and structured prompt that will guide an AI to generate a comprehensive educational document.
+
+The refined prompt you generate should explicitly instruct the AI to:
+1. Create a single, overarching '# H1' title.
+2. Propose multiple relevant '## Chapter' titles that break down the topic logically.
+3. For each proposed chapter, list the key knowledge points or questions that should be covered.
+
+Example:
+User's original topic: "history of ai"
+Your refined prompt output:
+"Generate a comprehensive report on the history of AI. The report should have a main title and be structured into the following chapters, covering the specified key points:
+## Chapter 1: The Dawn of AI - Early Concepts and Pioneers
+- Key Points: Turing Test, Dartmouth Workshop, Alan Turing, John McCarthy.
+## Chapter 2: The First AI Boom and Winter
+- Key Points: LISP, early successes in logic and games, limitations of early systems, funding cuts.
+## Chapter 3: The Rise of Machine Learning
+- Key Points: Expert systems, neural networks, backpropagation, Geoffrey Hinton.
+## Chapter 4: The Modern Era - Deep Learning and Foundational Models
+- Key Points: ImageNet, AlexNet, breakthroughs in NLP, rise of Transformers and LLMs."
+
+---
+
+User's original topic: "\${prompt}"
+
+Refined prompt:`
+            },
+            suggestTopics: {
+                title: "Suggest Extended Topics",
+                function: "suggestExtendedTopics",
+                model: "gemini-2.5-flash",
+                purpose: "To suggest related topics for further exploration based on the current report.",
+                prompt: `Based on the following learning material, suggest 5 distinct but related topics that the user might be interested in exploring next. Provide only the topic titles, one per line. Do not add any extra formatting or numbering.
+
+Material:
+---
+\${text}
+---`
+            },
+            tutorChat: {
+                title: "AI Tutor Chat Response",
+                function: "getTutorResponse",
+                model: "gemini-2.5-flash",
+                purpose: "To provide a conversational response from the AI Tutor based on the user's question and chapter context.",
+                prompt: `You are an expert AI Tutor. Your role is to help the user understand the provided chapter content. 
+- Your responses must be directly related to the chapter context.
+- Be encouraging, clear, and concise.
+- When explaining concepts, use markdown for formatting (bold, italics, lists).
+- Do not answer questions outside the scope of the provided learning material unless the user explicitly asks you to search the web.
+
+Current Chapter Context:
+---
+\${chapterContext}
+---`
+            },
+            refineTutorPrompt: {
+                title: "Refine Tutor Chat Prompt",
+                function: "refineTutorPrompt",
+                model: "gemini-2.5-flash",
+                purpose: "To help the user formulate a better question for the AI Tutor.",
+                prompt: `You are an AI assistant helping a user refine their question to an AI tutor. The user is currently studying a specific chapter. Refine the user's prompt to be clearer, more specific, and better suited to elicit a helpful, educational response from the tutor.
+
+Current Chapter Context:
+---
+\${chapterContext}
+---
+
+User's original prompt: "\${prompt}"
+
+Refined prompt:`
+            },
+            generateImage: {
+                title: "Generate Image",
+                function: "generateImage",
+                model: "imagen-4.0-generate-001",
+                purpose: "Generates an image based on a user's textual prompt.",
+                prompt: `\${prompt}`
+            },
+            rewriteChapter: {
+                title: "Rewrite Entire Chapter",
+                function: "rewriteChapterStream",
+                model: "gemini-2.5-pro",
+                purpose: "To rewrite an entire chapter to be more engaging and comprehensive.",
+                prompt: `You are an expert educator and writer. Rewrite the following chapter to be more engaging, clear, and comprehensive.
+- Maintain the core information and topic of the chapter.
+- Improve the structure and flow.
+- Add relevant examples or analogies to clarify complex points.
+- Ensure the language is accessible and easy to understand.
+- The output must be a complete chapter in Markdown format, starting with the original '##' heading.
+
+Original Chapter:
+---
+\${chapterContent}
+---`
+            },
+            rewriteQnA: {
+                title: "Generate/Rewrite Q&A Section",
+                function: "rewriteQnAStream",
+                model: "gemini-2.5-flash",
+                purpose: "To generate a Q&A section based on the content of a chapter.",
+                prompt: `Based on the provided chapter content, generate a "Q&A" section.
+- Create 3-5 relevant questions that a student might ask about the material.
+- Provide clear and concise answers to each question.
+- Format the entire output in Markdown. Start with a '### Q&A' heading.
+- Each question should be a '#### Q:' heading, and each answer should be prefixed with '**A:**'.
+
+Chapter Content:
+---
+\${chapterContent}
+---`
+            },
+            generateParagraphTitle: {
+                title: "Generate Title for New Paragraph",
+                function: "generateParagraphTitle",
+                model: "gemini-2.5-flash",
+                purpose: "To generate a concise ### subheading for a new paragraph.",
+                prompt: `Generate a concise and descriptive title (3-5 words) for the following paragraph. The title should be suitable for a '###' markdown subheading. Respond with only the title text, without any prefixes or markdown.
+
+Paragraph:
+---
+\${paragraph}
+---`
+            },
+            generateChapterTitle: {
+                title: "Generate Title for New Chapter",
+                function: "generateChapterTitle",
+                model: "gemini-2.5-flash",
+                purpose: "To generate a title for a new chapter created from a snippet of text.",
+                prompt: `Generate a concise and descriptive title for a new chapter based on the following text. The title should not include the word "Chapter" or any numbering. Respond with only the title text.
+
+Chapter Text:
+---
+\${chapterText}
+---`
+            },
+            startReflection: {
+                title: "Start Reflection Session",
+                function: "startReflection",
+                model: "gemini-2.5-flash",
+                purpose: "To initiate a 'Reflection Mode' session with a greeting and starter questions.",
+                prompt: `You are an AI Tutor initiating a reflection session for a student who just finished a chapter.
+- The goal is to test their understanding and encourage deeper thinking.
+- Generate a friendly, encouraging opening message (greeting).
+- Generate 3-4 thought-provoking, open-ended questions or discussion topics based on the chapter content. These will be presented as suggestions.
+- Format your response as a JSON object with two keys: "greeting" (a string) and "suggestions" (an array of strings).
+
+Chapter Title: "\${chapterTitle}"
+
+Chapter Content:
+---
+\${chapterContent}
+---`
+            },
+            reflectionResponse: {
+                title: "Socratic Dialogue & Response",
+                function: "getReflectionResponse",
+                model: "gemini-2.5-pro",
+                purpose: "To drive the Socratic dialogue, evaluate user input, update memory, and ask follow-up questions.",
+                prompt: `You are an AI Tutor in a "Reflection Mode" session. Your goal is to guide the user through a Socratic dialogue to deepen their understanding of the chapter content.
+
+**Chapter Content:**
+---
+\${chapterContent}
+---
+
+**Reflection Memory (a summary of the conversation so far):**
+---
+\${memory || 'No memory yet.'}
+---
+
+**Recent Conversation History:**
+---
+\${historyText}
+---
+
+**User's Latest Input:** "\${userInput}"
+
+**Your Task:**
+1. **Update Memory:** Briefly summarize the key points from the user's latest input and update the reflection memory. The new memory should be a concise paragraph.
+2. **Respond to User:** Formulate a direct response to the user's input. This should acknowledge their point, gently correct any misconceptions, and praise their insights.
+3. **Ask Next Question:** Pose a new, follow-up question that builds on the conversation and encourages the user to think more deeply. This can be a multiple-choice question, an open-ended question, or a request to explain a concept in their own words.
+4. **(Optional) Image Prompt:** If a visual aid would be highly beneficial for the next question (e.g., a diagram, a chart, a conceptual image), provide a detailed prompt for an image generation model. Otherwise, leave it as null. The prompt should be descriptive, e.g., "A simple diagram showing the flow of data through the transformer architecture, with labels for encoder, decoder, and self-attention layers."
+5. **(Optional) Choices:** If the next question is multiple-choice, provide an array of 3-4 strings for the choices. Otherwise, leave it as null.
+
+**Output Format:**
+Your entire response MUST be a single, valid JSON object with the following keys: "updatedMemory", "responseToUser", "nextQuestion", "imagePrompt", "choices".`
+            },
+            liveVoice: {
+                title: "Live Voice Transcription",
+                function: "connectLive",
+                model: "gemini-2.5-flash-native-audio-preview",
+                purpose: "To handle real-time, low-latency voice conversations and transcription.",
+                prompt: `This feature does not use a direct content prompt. Instead, it relies on configuration parameters passed to the ai.live.connect method, such as systemInstruction, which serves a similar purpose.`
+            }
+        };
+
+        const jobSelector = document.getElementById('jobSelector');
+        const jobDetails = document.getElementById('jobDetails');
+        const jobTitle = document.getElementById('jobTitle');
+        const jobModel = document.getElementById('jobModel');
+        const jobFunction = document.getElementById('jobFunction');
+        const jobPurpose = document.getElementById('jobPurpose');
+        const jobPrompt = document.getElementById('jobPrompt');
+
+        function displayJobDetails(selectedJob) {
+            if (selectedJob && jobsData[selectedJob]) {
+                const job = jobsData[selectedJob];
+                
+                jobTitle.textContent = job.title;
+                jobModel.textContent = job.model;
+                jobFunction.textContent = job.function;
+                jobPurpose.textContent = job.purpose;
+                jobPrompt.textContent = job.prompt;
+                
+                jobDetails.style.display = 'block';
+            } else {
+                jobDetails.style.display = 'none';
+            }
+        }
+
+        jobSelector.addEventListener('change', function() {
+            const selectedJob = this.value;
+            displayJobDetails(selectedJob);
+            
+            // Smooth scroll to details if job is selected
+            if (selectedJob) {
+                setTimeout(() => {
+                    jobDetails.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
+            }
+        });
+
+        // Display the first job by default on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            displayJobDetails('analyzeImage');
+        });
+
+        // Copy prompt to clipboard
+        function copyPrompt() {
+            const promptText = document.getElementById('jobPrompt').textContent;
+            const copyButton = document.getElementById('copyButton');
+            
+            navigator.clipboard.writeText(promptText).then(() => {
+                // Change button appearance to show success
+                copyButton.classList.add('copied');
+                copyButton.title = 'Copied!';
+                
+                // Reset button after 2 seconds
+                setTimeout(() => {
+                    copyButton.classList.remove('copied');
+                    copyButton.title = 'Copy to clipboard';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+                copyButton.title = 'Failed to copy';
+                setTimeout(() => {
+                    copyButton.title = 'Copy to clipboard';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
